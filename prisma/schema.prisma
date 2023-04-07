@@ -1,0 +1,95 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+model User {
+    id        String        @id @unique @default(uuid())
+    email     String        
+    password  String
+    cpf_cnpj  String        @unique
+    name      String
+    role      RoleEnumType? @default(user)
+    createdAt DateTime      @default(now())
+    updatedAt DateTime      @updatedAt
+}
+
+enum RoleEnumType {
+    user
+    admin
+}
+
+model PDV {
+    id           String   @id @unique @default(uuid())
+    isActive     Boolean  @default(true)
+    type         String
+    company      String
+    login        String 
+    password     String  
+    orders       Order[]
+    items        ItemsOnPDV[]
+    createdAt    DateTime @default(now())
+    updatedAt    DateTime @updatedAt
+}
+
+enum OrderStatusEnumType {
+    pending
+    approved
+    accredited
+    delivered
+    canceled
+}
+
+model Order {
+    id           String @id @unique @default(uuid())
+    items        ItemsOnOrder[]
+    price        Float
+    payment_link String @default("")
+    payment_id   String @unique @default("")
+    status       OrderStatusEnumType @default(pending)
+    pdvId        String
+    pdv          PDV @relation(fields: [pdvId], references: [id])
+    createdAt    DateTime @default(now())
+    updatedAt    DateTime @updatedAt
+}
+
+model ItemsOnOrder {
+    quantity  Int
+    pricePerItem Float
+    itemId    String
+    item      Items @relation(fields: [itemId], references: [id])
+    orderId   String @unique
+    order     Order @relation(fields: [orderId], references: [id])
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    @@id ([orderId, itemId])
+}
+
+model ItemsOnPDV {
+    quantity  Int
+    itemId    String
+    item      Items @relation(fields: [itemId], references: [id])
+    pdvId     String @unique
+    pdv       PDV @relation(fields: [pdvId], references: [id])
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    @@id ([pdvId, itemId])
+}
+
+model Items {
+    id        String @id @unique @default(uuid())
+    name      String
+    description String
+    price     Float
+    orders    ItemsOnOrder[]
+    pdvs      ItemsOnPDV[]
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}
