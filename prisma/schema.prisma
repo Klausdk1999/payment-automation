@@ -52,7 +52,7 @@ model Order {
     items        ItemsOnOrder[]
     price        Float
     payment_link String @default("")
-    payment_id   String @unique @default("")
+    payment_id   String @default("")
     status       OrderStatusEnumType @default(pending)
     pdvId        String
     pdv          PDV @relation(fields: [pdvId], references: [id])
@@ -67,8 +67,7 @@ model ItemsOnOrder {
     item      Items @relation(fields: [itemId], references: [id])
     orderId   String @unique
     order     Order @relation(fields: [orderId], references: [id])
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+    assignedAt DateTime @default(now())
     @@id ([orderId, itemId])
 }
 
@@ -78,8 +77,7 @@ model ItemsOnPDV {
     item      Items @relation(fields: [itemId], references: [id])
     pdvId     String @unique
     pdv       PDV @relation(fields: [pdvId], references: [id])
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+    assignedAt DateTime @default(now())
     @@id ([pdvId, itemId])
 }
 

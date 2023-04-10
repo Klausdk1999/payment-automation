@@ -4,9 +4,13 @@ import { env } from "../../../env.mjs";
 import { createTRPCRouter, publicProcedure } from "../trpc.js";
 import { TRPCError } from "@trpc/server";
 
-interface IData {
+interface IOrder {
   id: string;
-  name: string;
+  items: {
+    name: string;
+    description: string;
+    price: number;
+  }[];
   cnpj: string;
   order: {
     id: string;
@@ -24,6 +28,7 @@ export const mercadoPagoRouter = createTRPCRouter({
         notification_url: z.string().url(),
         external_reference: z.boolean(),
         items: z.array(z.object({
+          id: z.string().uuid(),
           title: z.string(),
           quantity: z.number(),
           unit_price: z.number()
@@ -36,7 +41,8 @@ export const mercadoPagoRouter = createTRPCRouter({
         notification_url: input.notification_url,
         external_reference: input.external_reference,
         binary_mode: true,
-        items: input.items,
+        items: input.items.map((item) =>
+          ({ id:item.id ,quantity: item.quantity, title: item.title, unit_price: item.unit_price, currency_id: "BRL" })),
         back_urls: {
           success: `${env.APP_URL}/${input.pdv}/success`,
           failure: `${env.APP_URL}/${input.pdv}/failure`,
@@ -45,26 +51,27 @@ export const mercadoPagoRouter = createTRPCRouter({
       };
 
       try {
-        fetch(`${env.API_URL}/order/companies`, {
+        fetch(`${env.API_URL}/checkout/preferences?access_token=${env.ACCESS_TOKEN}`, {
           method: "POST",
           body: JSON.stringify(body),
         })
           .then((response) => response.json())
-          .then((data: { order_id: string; company_id: string }) => {
-            if (!data.company_id || !data.order_id) {
+          .then((data: { init_point: string;}) => {
+            if (!data.init_point) {
               throw new TRPCError({
                 code: "NOT_FOUND",
-                message: "Erro nos dados retornados ao criar empresa no BPM",
+                message: "Erro nos dados retornados ao criar pedido no mercadopago",
               });
             }
+            const items = input.items.map((item) => ({ itemId: item.id }))
             return ctx.prisma.order.create({
               data: {
-                id: data.order_id,
-                isActive: body.order.isActive,
-                userLimit: body.order.userLimit,
-                areaLimit: body.order.areaLimit,
-                pricePerUser: body.order.pricePerUser,
-                company_id: data.company_id,
+                items:  {
+                  connect: items,
+                },
+                price: input.items.reduce((acc, item) => acc + item.quantity * item.unit_price, 0),
+                payment_link: data.init_point,
+                pdvId: input.pdv,
               },
             });
           })
