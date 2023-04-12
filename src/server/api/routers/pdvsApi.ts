@@ -60,4 +60,32 @@ export const pdvRouter = createTRPCRouter({
     // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
     return ctx.prisma.pDV.findMany();
   }),
+  linkItemToPdv: publicProcedure
+  .input(
+    z.object({
+      pdvId: z.string().uuid(),
+      itemId: z.string().uuid(),
+      quantity: z.number().int(),
+    }),
+  )
+  .mutation(async ({ ctx, input }) => {
+    const { pdvId, itemId, quantity } = input;
+
+    // Check if the PDV exists
+    const pdv = await ctx.prisma.pDV.findUnique({ where: { id: pdvId } });
+    if (!pdv) throw new Error(`PDV with ID ${pdvId} not found`);
+
+    // Check if the item exists
+    const item = await ctx.prisma.items.findUnique({ where: { id: itemId } });
+    if (!item) throw new Error(`Item with ID ${itemId} not found`);
+
+    // Link the item to the PDV
+    return ctx.prisma.itemsOnPDV.create({
+      data: {
+        pdv: { connect: { id: pdvId } },
+        item: { connect: { id: itemId } },
+        quantity,
+      },
+    });
+  }),
 });
