@@ -5,7 +5,7 @@ import TextField from "@mui/material/TextField";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
-import logo from "../assets/images/logo-brasao-bpm.svg";
+import logo from "../assets/images/logo.jpeg";
 import Image from "next/image";
 import Head from "next/head";
 import { type NextPage } from "next";
@@ -34,7 +34,7 @@ const Home: NextPage = () => {
       if (data.user) {
         localStorage.setItem("user", JSON.stringify(data.user));
       }
-      await router.push("/licenses");
+      await router.push("/pdv");
     },
     onError: (err) => {
       toast.error("Ocorreu um erro. Verifique suas credenciais.");
@@ -70,14 +70,12 @@ const Home: NextPage = () => {
       >
         <Image
           src={logo}
-          alt="Logo da Empresa Brasão Sistemas"
+          alt="Logo da Empresa QuickPay"
           style={{
             width: "250px",
+            height: "200px",
           }}
         />
-        <Typography component="h1" variant="h5" mt={1}>
-          Licenças
-        </Typography>
         <FormikProvider value={formik}>
           <form noValidate onSubmit={formik.handleSubmit}>
             <Box sx={{ mt: 1 }}>

@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import * as React from 'react';
-import logo from './../../assets/images/logo-brasao-bpm.svg';
+import logo from "../../assets/images/logo.jpeg";
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
@@ -20,7 +20,7 @@ import { useRouter } from 'next/router';
 import { api } from '../../utils/api';
 import { toast } from 'react-toastify';
 
-const pages = ['Licenças', 'Usuários'];
+const pages = ['PDVs', 'Usuários'];
 
 export function Header() {
   const router = useRouter();
@@ -49,10 +49,11 @@ export function Header() {
   const handleMenuClick = (page: string) => {
     handleCloseNavMenu();
 
-    if (page === 'Licenças') {
-      void router.push('/licenses');
-    } else {
-      void router.push('/users');
+    if (page === 'PDVs') {
+      void router.push('/pdv');
+    } 
+    if (page === 'Usuários') {
+      void router.push('/user');
     }
   };
   
@@ -76,7 +77,7 @@ export function Header() {
           >
             <Image
               src={logo}
-              alt="Logo da empresa Brasão Sistemas"
+              alt="Logo da empresa QuickPay"
               width="150"
               height="50"
               priority
@@ -130,7 +131,7 @@ export function Header() {
           >
             <Image
               src={logo}
-              alt="Logo da empresa Brasão Sistemas"
+              alt="Logo da empresa QuickPay"
               width="150"
               height="50"
               priority

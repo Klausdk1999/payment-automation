@@ -7,18 +7,24 @@ import { roboto } from './roboto';
 
 export const darkTheme = createTheme({
   palette: {
-    mode: 'dark',
+    mode: 'light',
     primary: {
-      main: '#007dc6',
-      dark: '#004071',
-      contrastText: '#000',
+      main: '#fea10d',
+      dark: '#050b26',
+      contrastText: '#eaeeed',
     },
     secondary: {
-      main: '#53a546',
-      contrastText: '#000',
+      main: '#7c7f8e',
     },
     error: {
       main: red.A400,
+    },
+    background: {
+      default: "#ffffff",
+    },
+    text: {
+      primary: '#212121',
+      secondary: '#676767',
     },
   },
   typography: {

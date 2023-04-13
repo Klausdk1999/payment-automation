@@ -39,7 +39,7 @@ export async function middleware(req: NextRequest) {
   }
 
   if (req.url.includes("/login") && verifiedToken) {
-    return NextResponse.redirect(new URL("/licenses", req.url));
+    return NextResponse.redirect(new URL("/pdv", req.url));
   }
 
   if (!verifiedToken) {
@@ -51,10 +51,10 @@ export const config = {
   matcher: [
     "/",
     "/api/trpc",
-    "/licenses",
+    "/pdv",
     "/users",
     "/login",
-    "/licenses/:path*",
+    "/pdv/:path*",
     "/users/:path*",
   ],
 };

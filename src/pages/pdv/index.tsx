@@ -127,7 +127,7 @@ const PDV: NextPage = () => {
           }}
         >
           <Box>
-            <ContentHeader title="Licenças" handleAdd={handleAddPDV} />
+            <ContentHeader title="Pontos de Vendas" handleAdd={handleAddPDV} />
             <TextField
               label="Pesquisar"
               name="find"
@@ -153,14 +153,14 @@ const PDV: NextPage = () => {
               borderRadius: "5px 5px 0 0",
             }}
           >
-            <Table size="small" aria-label="lista de licenças">
+            <Table size="small" aria-label="lista de pdvs">
               <TableHead>
                 <TableRow>
-                  <TableCell align="center">Editar</TableCell>
+                  <TableCell align="left">Editar</TableCell>
                   <TableCell align="left">Companhia</TableCell>
                   <TableCell align="left">Login</TableCell>
-                  <TableCell align="center">Tipo</TableCell>
-                  <TableCell align="center">Ativo</TableCell>
+                  <TableCell align="left">Tipo</TableCell>
+                  <TableCell align="left">Ativo</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -172,7 +172,7 @@ const PDV: NextPage = () => {
                   : filteredPDV
                 ).map((PDVData: IPDVData) => (
                   <TableRow key={PDVData?.id}>
-                    <TableCell component="th" scope="row" align="center">
+                    <TableCell component="th" scope="row" align="left">
                       <IconButton
                         aria-label="Editar"
                         size="small"
@@ -183,16 +183,16 @@ const PDV: NextPage = () => {
                         <Edit />
                       </IconButton>
                     </TableCell>
-                    <TableCell component="th" scope="row">
+                    <TableCell component="th" scope="row"  align="left">
                       {PDVData.company}
                     </TableCell>
-                    <TableCell component="th" scope="row">
+                    <TableCell component="th" scope="row"  align="left">
                       {PDVData.login}
                     </TableCell>
-                    <TableCell component="th" scope="row">
+                    <TableCell component="th" scope="row"  align="left">
                       {PDVData.type}
                     </TableCell>
-                    <TableCell component="th" scope="row" align="center">
+                    <TableCell component="th" scope="row" align="left">
                       {PDVData.isActive ? "Sim" : "Não"}
                     </TableCell>
                   </TableRow>

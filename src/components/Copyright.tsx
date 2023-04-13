@@ -10,8 +10,8 @@ export default function Copyright() {
       sx={{ mt: 8, mb: 4 }}
     >
       {"Copyright © "}
-      <Link color="inherit" href="https://brasaosistemas.com.br/">
-        Brasão Sistemas
+      <Link color="inherit" href="https://www.linkedin.com/in/klausdk1999/">
+        QuickPay
       </Link>{" "}
       {new Date().getFullYear()}
       {"."}

@@ -9,18 +9,18 @@ export const lightTheme = createTheme({
   palette: {
     mode: 'light',
     primary: {
-      main: '#007dc6',
-      dark: '#004071',
+      main: '#fea10d',
+      dark: '#050b26',
       contrastText: '#eaeeed',
     },
     secondary: {
-      main: '#53a546',
+      main: '#7c7f8e',
     },
     error: {
       main: red.A400,
     },
     background: {
-      default: "#eaeeed",
+      default: "#f9f9f8",
     },
     text: {
       primary: '#212121',
