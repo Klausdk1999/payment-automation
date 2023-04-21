@@ -24,7 +24,6 @@ import { toast } from "react-toastify";
 import { useFormik, Field, FormikProvider } from "formik";
 import { toFormikValidationSchema } from "zod-formik-adapter";
 import z from "zod";
-import { InputCNPJMask } from "../../components/InputCnpjMask";
 
 const createPDVSchema = z.object({
   isActive: z.boolean(),
@@ -119,17 +118,13 @@ const CreatePDV: NextPage = () => {
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
                 />
-                <TextField
+                <Field
                   name="type"
-                  type="text"
                   label="Tipo"
                   margin="normal"
                   fullWidth
                   value={formik.values.type}
-                  onChange={(e) => {
-                   formik.handleChange
-                  }}
-                  onBlur={formik.handleBlur}
+                  as={Select}
                   error={
                     formik.touched.type &&
                     Boolean(formik.errors.type)
@@ -137,7 +132,13 @@ const CreatePDV: NextPage = () => {
                   helperText={
                     formik.touched.type && formik.errors.type
                   }
-                />
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                >
+                  <MenuItem value="manual">Manual</MenuItem>
+                  <MenuItem value="automated">Automatizado</MenuItem>
+                </Field>
+
                 <Field
                   name="login"
                   type="login"
@@ -183,7 +184,7 @@ const CreatePDV: NextPage = () => {
                       onChange={formik.handleChange}
                     />
                   }
-                  label="Licença ativa"
+                  label="PDV ativo"
                 />
                 <Box
                   sx={{
