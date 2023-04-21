@@ -58,7 +58,7 @@ const Home: NextPage = () => {
   return (
     <Container component="main" maxWidth="xs">
       <Head>
-        <title>BPM - Licenses</title>
+        <title>QuickPay</title>
       </Head>
       <Box
         sx={{
