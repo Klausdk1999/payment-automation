@@ -2,10 +2,8 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import React, { useEffect, useState } from "react";
-import type { InputBaseComponentProps } from "@mui/material";
 import {
   Paper,
-  InputAdornment,
   TextField,
   Button,
   FormControlLabel,
@@ -24,7 +22,6 @@ import { toast } from "react-toastify";
 import { useFormik, Field, FormikProvider } from "formik";
 import { toFormikValidationSchema } from "zod-formik-adapter";
 import z from "zod";
-import { InputCNPJMask } from "../../../components/InputCnpjMask";
 
 const editpdvSchema = z.object({
   isActive: z.boolean(),
@@ -119,7 +116,7 @@ const Editpdv: NextPage = () => {
             width: "100%",
           }}
         >
-          <ContentHeader title="Adicionar licença" />
+          <ContentHeader title="Editar PDV" />
           <FormikProvider value={formik}>
             <form noValidate onSubmit={formik.handleSubmit}>
               <Box
@@ -150,17 +147,13 @@ const Editpdv: NextPage = () => {
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
                 />
-                <TextField
+                <Field
                   name="type"
-                  type="text"
                   label="Tipo"
                   margin="normal"
                   fullWidth
                   value={formik.values.type}
-                  onChange={(e) => {
-                   formik.handleChange
-                  }}
-                  onBlur={formik.handleBlur}
+                  as={Select}
                   error={
                     formik.touched.type &&
                     Boolean(formik.errors.type)
@@ -168,7 +161,12 @@ const Editpdv: NextPage = () => {
                   helperText={
                     formik.touched.type && formik.errors.type
                   }
-                />
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                >
+                  <MenuItem value="manual">Manual</MenuItem>
+                  <MenuItem value="automated">Automatizado</MenuItem>
+                </Field>
                 <Field
                   name="login"
                   type="login"
@@ -214,7 +212,7 @@ const Editpdv: NextPage = () => {
                       onChange={formik.handleChange}
                     />
                   }
-                  label="Licença ativa"
+                  label="PDV ativo"
                 />
                 <Box
                   sx={{

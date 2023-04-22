@@ -2,7 +2,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import React from "react";
-import type { InputBaseComponentProps } from "@mui/material";
 import {
   Paper,
   TextField,
@@ -11,7 +10,6 @@ import {
   Checkbox,
   Select,
   MenuItem,
-  InputAdornment,
 } from "@mui/material";
 import { ContentHeader } from "../../components/ContentHeader";
 import { type NextPage } from "next";
@@ -87,7 +85,7 @@ const CreatePDV: NextPage = () => {
             width: "100%",
           }}
         >
-          <ContentHeader title="Adicionar licença" />
+          <ContentHeader title="Adicionar PDV" />
           <FormikProvider value={formik}>
             <form noValidate onSubmit={formik.handleSubmit}>
               <Box

@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { createTRPCRouter, publicProcedure } from "../trpc";
+import { TRPCError } from "@trpc/server";
 
 export const itemSchema = z.object({
   id: z.string().uuid(),
@@ -37,6 +38,16 @@ export const itemsRouter = createTRPCRouter({
       return ctx.prisma.items.findFirst({
         where: { id: input.id },
       });
+    }),
+  getByPdvId: publicProcedure
+    .input(z.object({ pdvId: z.string().uuid() }))
+    .query(async ({ ctx, input }) => {
+      const pdvItems = await ctx.prisma.itemsOnPDV.findMany({
+        where: { pdvId: input.pdvId },
+        include: { pdv:true, item: true },
+      });
+      if(!pdvItems) throw new TRPCError({ code: "NOT_FOUND" });;
+      return pdvItems;
     }),
   updateById: publicProcedure
     .input(

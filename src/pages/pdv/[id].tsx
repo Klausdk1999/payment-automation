@@ -1,233 +1,159 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-import React, { useState, useEffect } from "react";
-import { type NextPage } from "next";
+import { useState, useEffect } from 'react';
+import { NextPage } from 'next';
+import { api } from '../../utils/api';
+import { toast } from 'react-toastify';
+import { useRouter } from 'next/router';
+import React from "react";
+import {
+  Paper,
+  TextField,
+  Button,
+  FormControlLabel,
+  Checkbox,
+  Select,
+  MenuItem,
+  Typography,
+  Grid,
+} from "@mui/material";
 import Container from "@mui/material/Container";
-import TextField from "@mui/material/TextField";
 import Box from "@mui/material/Box";
 
-import { Header } from "../../components/Header";
-import { ContentHeader } from "../../components/ContentHeader";
-import { Edit } from "@mui/icons-material";
-import {
-  TableContainer,
-  Paper,
-  Table,
-  TableHead,
-  TableRow,
-  TableCell,
-  TableBody,
-  IconButton,
-  TablePagination,
-} from "@mui/material";
-
-import { api } from "../../utils/api";
-import { useRouter } from "next/router";
-import { toast } from "react-toastify";
-
-interface IPDVData {
+interface IPDV {
   id: string;
-  isActive: boolean;
   type: string;
   company: string;
-  login: string;
-  password: string;
+  // Add other fields as needed
 }
 
-const PDV: NextPage = () => {
-  const router = useRouter();
+interface IItem {
+  id: string;
+  name: string;
+  price: number;
+  // Add other fields as needed
+}
+interface IItemsOnPDV {
+  id: string;
+  quantity: number;
+  item: IItem[];
+  pdv: IPDV;
+}
 
-  const getpdv = api.pdvs.getAll.useMutation({
-    onSuccess: (data: IPDVData[]) => {
-      if (data && data.length > 0) {
-        setpdv(data);
-      }
-    },
-    onError: (err) => {
-      toast.error(`Ocorreu um erro. ${err.message.toString()}`, {
+const Store: NextPage = () => {
+  const router = useRouter();
+  const { id } = router.query;
+  const [selectedItems, setSelectedItems] = useState<{ [itemId: string]: number }>({});
+
+  const { data, isLoading } = api.items.getByPdvId.useQuery({
+    pdvId: id as string,
+  });
+
+  if (!data || isLoading) return <div>Loading ...</div>;
+
+  const pdv = data[0]?.pdv;
+  const items = data.map((item) => item.item);
+  
+  // Handle item quantity change
+  const handleQuantityChange = (itemId: string, quantity: number) => {
+    setSelectedItems({
+      ...selectedItems,
+      [itemId]: quantity,
+    });
+  };
+
+  // Finalizar Compra
+  const finalizePurchase = () => {
+    if (!selectedItems.length) {
+      toast.error("Nenhum item selecionado.", {
+        position: "top-right",
+        autoClose: 3000,
+        theme: "colored",
+      });
+      return;
+    }
+
+    try {
+      // await createOrder.mutateAsync({
+      //   pdvId: pdvId,
+      //   items: selectedItems,
+      // });
+
+      toast.success("Compra finalizada com sucesso!", {
+        position: "top-right",
+        autoClose: 3000,
+        theme: "colored",
+      });
+
+      // Reset selectedItems after successful order
+     //setSelectedItems([]);
+    } catch (error) {
+      toast.error(`Erro ao finalizar a compra`, {
         position: "top-right",
         autoClose: 5000,
         theme: "colored",
       });
-    },
-  });
-
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
-  const [findName, setFindName] = useState("");
-  const [pdv, setpdv] = useState<IPDVData[]>(
-    [] as IPDVData[]
-  );
-  const [filteredPDV, setFilteredPDV] = useState<IPDVData[]>(
-    [] as IPDVData[]
-  );
-
-  const emptyRows =
-    rowsPerPage - Math.min(rowsPerPage, pdv.length - page * rowsPerPage);
-
-  useEffect(() => {
-    getpdv.mutate();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [router.reload]);
-
-  useEffect(() => {
-    setFilteredPDV(pdv);
-  }, [pdv]);
-
-  const handleAddPDV = () => {
-    void router.push("/pdv/create");
-  };
-
-  const handleEditPDV = (id: string) => {
-    const findPDV = pdv.find(
-      (PDV) => PDV.id === id
-    ) as IPDVData;
-
-    const formattedPDV = JSON.stringify(findPDV);
-
-    void router.push(
-      {
-        pathname: `/pdv/edit/[id]`,
-        query: {
-          id,
-          PDVData: formattedPDV,
-        },
-      },
-      `/pdv/edit/${id}`
-    );
-  };
-
-  const handleChangePage = (
-    event: React.MouseEvent<HTMLButtonElement> | null,
-    newPage: number
-  ) => {
-    setPage(newPage);
-  };
-
-  const handleChangeRowsPerPage = (
-    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    setRowsPerPage(parseInt(event.target.value));
-    setPage(0);
+    }
   };
 
   return (
-    <>
-      <Header />
-      <Container maxWidth="lg">
-        <Box
-          sx={{
-            my: 4,
-            display: "flex",
-            flexDirection: "column",
-            height: "100%",
-          }}
+    <div style={{ padding: 16 }}>
+      <Typography variant="h4" gutterBottom>
+        {pdv?.company}
+      </Typography>
+      <Grid container spacing={2}>
+        {items.map((item) => (
+          <Grid item key={item.id} xs={12} sm={6} md={4}>
+            <Paper style={{ padding: 16, border: `1px solid`, borderRadius: 4 }}>
+              <Typography variant="h5" gutterBottom>
+                {item.name}
+              </Typography>
+              <Typography variant="body1" gutterBottom>
+                Price: ${item.price}
+              </Typography>
+              <div style={{ display: 'flex', alignItems: 'center', marginTop: 8 }}>
+                <Typography variant="body1" gutterBottom style={{ marginRight: 8 }}>
+                  Quantity:
+                </Typography>
+                <TextField
+                  id={`quantity-${item.id}`}
+                  type="number"
+                  inputProps={{ min: 0 }}
+                  value={selectedItems[item.id] || 0}
+                  onChange={(e) => handleQuantityChange(item.id, parseInt(e.target.value))}
+                />
+              </div>
+              <Button
+                variant="contained"
+                style={{ color: 'white', marginTop: 16 }}
+                onClick={() => console.log('Added to cart')}
+              >
+                Add to Cart
+              </Button>
+            </Paper>
+          </Grid>
+        ))}
+      </Grid>
+      <Paper style={{ padding: 16, border: `1px solid`, borderRadius: 4, marginTop: 16 }}>
+        <Typography variant="h5" gutterBottom>
+          Order Summary
+        </Typography>
+        <Typography variant="body1" gutterBottom>
+          Total Items: {items.length}
+        </Typography>
+        <Typography variant="body1" gutterBottom>
+          Total Price: $0
+        </Typography>
+        <Button
+          variant="contained"
+          style={{ color: 'white', marginTop: 16 }}
+          onClick={finalizePurchase}
         >
-          <Box>
-            <ContentHeader title="Pontos de Vendas" handleAdd={handleAddPDV} />
-            <TextField
-              label="Pesquisar"
-              name="find"
-              margin="dense"
-              size="small"
-              variant="outlined"
-              fullWidth
-              value={findName}
-              sx={{
-                marginTop: 4,
-                maxWidth: "400px",
-              }}
-              onChange={(value) => {
-                setFindName(value.target.value);
-              }}
-            />
-          </Box>
-          <TableContainer
-            component={Paper}
-            sx={{
-              mt: 2,
-              bgcolor: "#fafafa",
-              borderRadius: "5px 5px 0 0",
-            }}
-          >
-            <Table size="small" aria-label="lista de pdvs">
-              <TableHead>
-                <TableRow>
-                  <TableCell align="left">Editar</TableCell>
-                  <TableCell align="left">Companhia</TableCell>
-                  <TableCell align="left">Login</TableCell>
-                  <TableCell align="left">Tipo</TableCell>
-                  <TableCell align="left">Ativo</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {(rowsPerPage > 0
-                  ? filteredPDV.slice(
-                      page * rowsPerPage,
-                      page * rowsPerPage + rowsPerPage
-                    )
-                  : filteredPDV
-                ).map((PDVData: IPDVData) => (
-                  <TableRow key={PDVData?.id}>
-                    <TableCell component="th" scope="row" align="left">
-                      <IconButton
-                        aria-label="Editar"
-                        size="small"
-                        onClick={() =>
-                          handleEditPDV(PDVData?.id)
-                        }
-                      >
-                        <Edit />
-                      </IconButton>
-                    </TableCell>
-                    <TableCell component="th" scope="row"  align="left">
-                      {PDVData.company}
-                    </TableCell>
-                    <TableCell component="th" scope="row"  align="left">
-                      {PDVData.login}
-                    </TableCell>
-                    <TableCell component="th" scope="row"  align="left">
-                      {PDVData.type}
-                    </TableCell>
-                    <TableCell component="th" scope="row" align="left">
-                      {PDVData.isActive ? "Sim" : "Não"}
-                    </TableCell>
-                  </TableRow>
-                ))}
-                {emptyRows > 0 && (
-                  <TableRow style={{ height: 43 * emptyRows }}>
-                    <TableCell colSpan={10} />
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </TableContainer>
-          <TablePagination
-            rowsPerPageOptions={[5, 10, { label: "Todos", value: -1 }]}
-            colSpan={10}
-            component={Paper}
-            count={filteredPDV.length}
-            rowsPerPage={rowsPerPage}
-            page={page}
-            labelRowsPerPage="Linhas por página"
-            onPageChange={handleChangePage}
-            onRowsPerPageChange={handleChangeRowsPerPage}
-            sx={{
-              margin: 0,
-              padding: 0,
-              backgroundColor: "#fafafa",
-              borderTopLeftRadius: "0",
-              borderTopRightRadius: "0",
-            }}
-            size="small"
-          />
-        </Box>
-      </Container>
-    </>
+          Finalize Purchase
+        </Button>
+      </Paper>
+    </div>
   );
 };
 
-export default PDV;
+export default Store;

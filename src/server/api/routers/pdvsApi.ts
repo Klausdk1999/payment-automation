@@ -48,8 +48,8 @@ export const pdvRouter = createTRPCRouter({
     }),
   getById: publicProcedure
     .input(z.object({ id: z.string().uuid() }))
-    .query(({ ctx, input }) => {
-      return ctx.prisma.pDV.findFirst({ where: { id: input.id } });
+    .query(async ({ ctx, input }) => {
+      return await ctx.prisma.pDV.findFirst({ where: { id: input.id } });
     }),
   deleteById: publicProcedure
     .input(z.object({ id: z.string().uuid() }))
