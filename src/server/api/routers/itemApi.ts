@@ -46,7 +46,7 @@ export const itemsRouter = createTRPCRouter({
         where: { pdvId: input.pdvId },
         include: { pdv:true, item: true },
       });
-      if(!pdvItems) throw new TRPCError({ code: "NOT_FOUND" });;
+      if(!pdvItems) throw new TRPCError({ code: "NOT_FOUND" });
       return pdvItems;
     }),
   updateById: publicProcedure

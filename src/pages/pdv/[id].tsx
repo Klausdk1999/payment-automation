@@ -43,8 +43,11 @@ interface IItemsOnPDV {
 const Store: NextPage = () => {
   const router = useRouter();
   const { id } = router.query;
-  const [selectedItems, setSelectedItems] = useState<{ [itemId: string]: number }>({});
+  const [selectedItems, setSelectedItems] = useState<{ [itemId: string]: { item: IItem,quantity: number } }>({});
+   
+  const createOrderMutation = api.order.create.useMutation();
 
+  // Fetch PDV and items
   const { data, isLoading } = api.items.getByPdvId.useQuery({
     pdvId: id as string,
   });
@@ -55,16 +58,16 @@ const Store: NextPage = () => {
   const items = data.map((item) => item.item);
   
   // Handle item quantity change
-  const handleQuantityChange = (itemId: string, quantity: number) => {
+  const handleQuantityChange = (itemId: string, item: IItem, quantity: number) => {
     setSelectedItems({
       ...selectedItems,
-      [itemId]: quantity,
+      [itemId]: { item, quantity },
     });
   };
 
   // Finalizar Compra
-  const finalizePurchase = () => {
-    if (!selectedItems.length) {
+  const finalizePurchase = async () => {
+    if (Object.keys(selectedItems).length === 0) {
       toast.error("Nenhum item selecionado.", {
         position: "top-right",
         autoClose: 3000,
@@ -74,10 +77,23 @@ const Store: NextPage = () => {
     }
 
     try {
-      // await createOrder.mutateAsync({
-      //   pdvId: pdvId,
-      //   items: selectedItems,
-      // });
+      // Transform selectedItems into the format expected by the mutation
+      const itemsArray = Object.values(selectedItems).map((itemData) => ({
+        itemId: itemData.item.id,
+        quantity: itemData.quantity,
+      }));
+
+      // Calculate the total price
+      const totalPrice = Object.values(selectedItems).reduce(
+        (total, itemData) => total + itemData.item.price * itemData.quantity,
+        0
+      );
+
+      await createOrderMutation.mutateAsync({
+        pdvId: id as string,
+        items: itemsArray,
+        price: totalPrice,
+      });
 
       toast.success("Compra finalizada com sucesso!", {
         position: "top-right",
@@ -86,7 +102,7 @@ const Store: NextPage = () => {
       });
 
       // Reset selectedItems after successful order
-     //setSelectedItems([]);
+      setSelectedItems({});
     } catch (error) {
       toast.error(`Erro ao finalizar a compra`, {
         position: "top-right",
@@ -97,7 +113,7 @@ const Store: NextPage = () => {
   };
 
   return (
-    <div style={{ padding: 16 }}>
+    <div style={{ padding: 16, marginTop:-100 }}>
       <Typography variant="h4" gutterBottom>
         {pdv?.company}
       </Typography>
@@ -113,14 +129,14 @@ const Store: NextPage = () => {
               </Typography>
               <div style={{ display: 'flex', alignItems: 'center', marginTop: 8 }}>
                 <Typography variant="body1" gutterBottom style={{ marginRight: 8 }}>
-                  Quantity:
+                  Quantidade:
                 </Typography>
                 <TextField
                   id={`quantity-${item.id}`}
                   type="number"
                   inputProps={{ min: 0 }}
-                  value={selectedItems[item.id] || 0}
-                  onChange={(e) => handleQuantityChange(item.id, parseInt(e.target.value))}
+                  value={selectedItems[item.id]?.quantity || 0}
+                  onChange={(e) => handleQuantityChange(item.id, item, parseInt(e.target.value))}
                 />
               </div>
               <Button
@@ -128,7 +144,7 @@ const Store: NextPage = () => {
                 style={{ color: 'white', marginTop: 16 }}
                 onClick={() => console.log('Added to cart')}
               >
-                Add to Cart
+                Adicionar ao pedido
               </Button>
             </Paper>
           </Grid>
@@ -136,20 +152,27 @@ const Store: NextPage = () => {
       </Grid>
       <Paper style={{ padding: 16, border: `1px solid`, borderRadius: 4, marginTop: 16 }}>
         <Typography variant="h5" gutterBottom>
-          Order Summary
+          Pedido
         </Typography>
         <Typography variant="body1" gutterBottom>
-          Total Items: {items.length}
+          Items: {Object.values(selectedItems)
+            .map(
+              (itemData) => `${itemData.item.name} (x${itemData.quantity})`
+            )
+            .join(", ")}
         </Typography>
         <Typography variant="body1" gutterBottom>
-          Total Price: $0
+          Preço Total: ${Object.values(selectedItems).reduce(
+            (total, itemData) => total + itemData.item.price * itemData.quantity,
+            0
+            ).toFixed(2)}
         </Typography>
         <Button
           variant="contained"
           style={{ color: 'white', marginTop: 16 }}
-          onClick={finalizePurchase}
+          onClick={()=>finalizePurchase}
         >
-          Finalize Purchase
+          Finalizar Compra
         </Button>
       </Paper>
     </div>
