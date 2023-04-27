@@ -1,7 +1,6 @@
 // orderRouter.ts
 import { z } from 'zod';
 import { createTRPCRouter, publicProcedure } from '../trpc';
-import { itemSchema } from './itemApi'; // import the itemSchema from itemRouter.ts
 import axios from "axios";
 import { env } from "../../../env.mjs";
 
@@ -89,7 +88,7 @@ export const ordersRouter = createTRPCRouter({
     );
 
     // Create the order with the fetched prices
-    return ctx.prisma.order.create({
+    const createdOrder = await ctx.prisma.order.create({
       data: {
         price,
         pdv: { connect: { id: pdvId } },
@@ -103,6 +102,72 @@ export const ordersRouter = createTRPCRouter({
       },
       include: { items: true },
     });
+
+    // Create the payment link for the created order
+    const orderId = createdOrder.id;
+
+    // Fetch the order with the provided ID
+    const order = await ctx.prisma.order.findUnique({
+      where: { id: orderId },
+      include: { items: { include: { item: true } }, pdv: true },
+    });
+
+    if (!order) {
+      throw new Error(`Order with ID ${orderId} not found`);
+    }
+
+    // Format the order items for the MercadoPago API
+    const apiItems = order.items.map((orderItem) => ({
+      title: orderItem.item.name,
+      quantity: orderItem.quantity,
+      currency_id: "BRL",
+      unit_price: orderItem.pricePerItem,
+    }));
+
+    // Send the POST request to create the payment link
+    const response = await axios.post<MercadoPagoResponse>(
+      "https://api.mercadopago.com/checkout/preferences",
+      {
+        external_reference: `Order ID: ${orderId}`,
+        binary_mode: true,
+        items: apiItems,
+        back_urls: {
+          success: `${env.APP_URL}/pdv/${order.pdv.id}/success`,
+          failure: `${env.APP_URL}/pdv/${order.pdv.id}/failure`,
+        },
+        auto_return: "approved",
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+        params: {
+          access_token: env.ACCESS_TOKEN,
+        },
+      },
+    );
+    if (response.status !== 201) {
+      throw new Error("Failed to create payment link");
+    }
+
+    // Update the order with the payment link and payment ID
+    await ctx.prisma.order.update({
+      where: { id: orderId },
+      data: {
+        payment_link: response.data.init_point,
+      },
+    });
+
+    // Update the created order with the payment link
+    const updatedOrder = await ctx.prisma.order.update({
+      where: { id: createdOrder.id },
+      data: {
+        payment_link: response.data.init_point,
+      },
+      include: { items: { include: { item: true } } },
+    });
+
+    return updatedOrder;
   }),
 
   getById: publicProcedure
@@ -160,7 +225,7 @@ export const ordersRouter = createTRPCRouter({
       },
     );
 
-    if (response.status !== 200) {
+    if (response.status !== 201) {
       throw new Error("Failed to create payment link");
     }
 

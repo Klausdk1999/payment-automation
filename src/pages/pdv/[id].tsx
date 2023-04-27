@@ -89,7 +89,7 @@ const Store: NextPage = () => {
         0
       );
 
-      await createOrderMutation.mutateAsync({
+      const order = await createOrderMutation.mutateAsync({
         pdvId: id as string,
         items: itemsArray,
         price: totalPrice,
@@ -170,7 +170,11 @@ const Store: NextPage = () => {
         <Button
           variant="contained"
           style={{ color: 'white', marginTop: 16 }}
-          onClick={()=>finalizePurchase}
+          onClick={() => {
+            finalizePurchase().catch((error) => {
+              console.error('Error finalizing purchase:', error);
+            });
+          }}
         >
           Finalizar Compra
         </Button>
