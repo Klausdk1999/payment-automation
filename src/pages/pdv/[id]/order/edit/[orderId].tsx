@@ -8,12 +8,12 @@ import { type NextPage } from "next";
 import Container from '@mui/material/Container';
 import Box from '@mui/material/Box';
 import { Paper, TextField, FormControlLabel, Checkbox, Button } from '@mui/material';
-import { ContentHeader } from '../../../components/ContentHeader';
+import { ContentHeader } from '../../../../../components/ContentHeader';
 
-import { Header } from '../../../components/Header';
+import { Header } from '../../../../../components/Header';
 
 import { useRouter } from 'next/router';
-import { api } from "../../../utils/api";
+import { api } from "../../../../../utils/api";
 import { z } from 'zod';
 import { toast } from 'react-toastify';
 import { FormikProvider, useFormik } from 'formik';
@@ -40,7 +40,7 @@ const editUserSchema = z.object({
 
 const EditUser: NextPage = () => {
   const router = useRouter();
-  const { id } = router.query;
+  const { orderId } = router.query;
   const [user, setUser] = useState<IUser | null>(null);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -64,9 +64,9 @@ const EditUser: NextPage = () => {
       return;
     }
 
-    if (id && id.length > 0) getUser.mutate({id});
+    if (orderId && orderId.length > 0) getUser.mutate({orderId});
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id]);
+  }, [orderId]);
 
   const updateUser = api.users.updateById.useMutation({
     onSuccess: async () => {

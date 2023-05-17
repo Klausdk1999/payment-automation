@@ -29,16 +29,20 @@ export const itemsRouter = createTRPCRouter({
       });
     }),
   getById: publicProcedure
-    .input(
-      z.object({
-        id: z.string().uuid(),
-      })
-    )
-    .mutation(({ ctx, input }) => {
-      return ctx.prisma.items.findFirst({
-        where: { id: input.id },
-      });
-    }),
+  .input(
+    z.object({
+      id: z.string().uuid(),
+    })
+  )
+  .mutation(({ ctx, input }) => {
+    return ctx.prisma.items.findUnique({
+      where: { id: input.id },
+      include: {
+        pdvs: true,
+      },
+    });
+  }),
+
   getByPdvId: publicProcedure
     .input(z.object({ pdvId: z.string().uuid() }))
     .query(async ({ ctx, input }) => {

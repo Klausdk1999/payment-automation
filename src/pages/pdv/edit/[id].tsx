@@ -87,7 +87,7 @@ const Editpdv: NextPage = () => {
       company: companypdv ? companypdv.company : "",
       isActive: companypdv ? companypdv?.isActive : true,
       login: companypdv ? companypdv.login : "",
-      password: companypdv ? companypdv.password : "",
+      password: "",
     },
     enableReinitialize: true,
     validationSchema: toFormikValidationSchema(editpdvSchema),
@@ -98,7 +98,7 @@ const Editpdv: NextPage = () => {
         type: values.type,
         company: values.company,
         login: values.login,
-        password: values.password,
+        password: values.password === "" ? undefined : values.password,
       });
     },
   });

@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { createTRPCRouter, publicProcedure } from "../trpc";
+import bcrypt from "bcrypt";
 
 export const pdvRouter = createTRPCRouter({
   create: publicProcedure
@@ -19,33 +20,46 @@ export const pdvRouter = createTRPCRouter({
           type: input.type,
           company: input.company,
           login: input.login,
-          password: input.password,          
+          password: bcrypt.hashSync(input.password, 10),         
         },
       });
     }),
   updateById: publicProcedure
-    .input(
-      z.object({
-        id: z.string().uuid(),
-        isActive: z.boolean(),
-        type: z.string(),
-        company: z.string(),
-        login: z.string(),
-        password: z.string(),
-      })
-    )
-    .mutation(async ({ ctx, input }) => {
-      return await ctx.prisma.pDV.update({
-        where: { id: input.id },
-        data: {
-          isActive: input.isActive,
-          type: input.type,
-          company: input.company,
-          login: input.login,
-          password: input.password,          
-        },
-      });
-    }),
+  .input(
+    z.object({
+      id: z.string().uuid(),
+      isActive: z.boolean(),
+      type: z.string(),
+      company: z.string(),
+      login: z.string(),
+      password: z.string().optional(),
+    })
+  )
+  .mutation(async ({ ctx, input }) => {
+    const updateData: {
+      isActive: boolean;
+      type: string;
+      company: string;
+      login: string;
+      password?: string;
+    } = {
+      isActive: input.isActive,
+      type: input.type,
+      company: input.company,
+      login: input.login,
+    };
+
+    if (input.password) {
+      updateData.password = bcrypt.hashSync(input.password, 10);
+    }
+
+    return await ctx.prisma.pDV.update({
+      where: { id: input.id },
+      data: updateData,
+    });
+  }),
+
+
   getById: publicProcedure
     .input(z.object({ id: z.string().uuid() }))
     .query(async ({ ctx, input }) => {
@@ -79,13 +93,23 @@ export const pdvRouter = createTRPCRouter({
     const item = await ctx.prisma.items.findUnique({ where: { id: itemId } });
     if (!item) throw new Error(`Item with ID ${itemId} not found`);
 
-    // Link the item to the PDV
-    return ctx.prisma.itemsOnPDV.create({
-      data: {
+    // Upsert the item on PDV
+    return ctx.prisma.itemsOnPDV.upsert({
+      where: {
+        pdvId_itemId: {
+          pdvId,
+          itemId,
+        },
+      },
+      create: {
         pdv: { connect: { id: pdvId } },
         item: { connect: { id: itemId } },
         quantity,
       },
+      update: {
+        quantity,
+      },
     });
   }),
+
 });

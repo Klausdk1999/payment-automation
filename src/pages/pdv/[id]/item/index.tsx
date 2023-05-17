@@ -9,8 +9,8 @@ import Container from "@mui/material/Container";
 import TextField from "@mui/material/TextField";
 import Box from "@mui/material/Box";
 
-import { Header } from "../../components/Header";
-import { ContentHeader } from "../../components/ContentHeader";
+import { Header } from "../../../../components/Header";
+import { ContentHeader } from "../../../../components/ContentHeader";
 import { Edit, Delete } from "@mui/icons-material";
 import {
   TableContainer,
@@ -25,7 +25,7 @@ import {
   TablePagination,
 } from "@mui/material";
 
-import { api } from "../../utils/api";
+import { api } from "../../../../utils/api";
 import { useRouter } from "next/router";
 import { toast } from "react-toastify";
 import Swal from "sweetalert2";

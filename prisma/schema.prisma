@@ -31,7 +31,7 @@ model PDV {
     isActive     Boolean  @default(true)
     type         String
     company      String
-    login        String 
+    login        String   @unique  
     password     String  
     orders       Order[]
     items        ItemsOnPDV[]
