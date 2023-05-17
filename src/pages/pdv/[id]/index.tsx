@@ -1,83 +1,110 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-import React, { useState, useEffect } from "react";
-import { TRPCClientError } from '@trpc/client';
-import { type NextPage } from "next";
-import Container from "@mui/material/Container";
-import TextField from "@mui/material/TextField";
-import Box from "@mui/material/Box";
-import { Header } from "../../../components/Header";
-import { ContentHeader } from "../../../components/ContentHeader";
-import { Edit, Delete } from "@mui/icons-material";
+import { useState, useEffect } from 'react';
+import { NextPage } from 'next';
+import { api } from '../../../utils/api';
+import { toast } from 'react-toastify';
+import { useRouter } from 'next/router';
+import React from "react";
 import {
-  TableContainer,
   Paper,
-  Table,
-  TableHead,
-  TableRow,
-  TableCell,
-  TableBody,
-  IconButton,
-  TableFooter,
-  TablePagination,
-  CircularProgress,
-  Skeleton,
+  TextField,
+  Button,
+  FormControlLabel,
+  Checkbox,
+  Select,
+  MenuItem,
+  Typography,
+  Grid,
 } from "@mui/material";
+import Container from "@mui/material/Container";
+import Box from "@mui/material/Box";
 
-import { api } from "../../../utils/api";
-import { useRouter } from "next/router";
-import { toast } from "react-toastify";
-import Swal from "sweetalert2";
+interface IPDV {
+  id: string;
+  type: string;
+  company: string;
+  // Add other fields as needed
+}
 
-const PDVItems: NextPage = () => {
+interface IItem {
+  id: string;
+  name: string;
+  price: number;
+  // Add other fields as needed
+}
+interface IItemsOnPDV {
+  id: string;
+  quantity: number;
+  item: IItem[];
+  pdv: IPDV;
+}
+
+const Store: NextPage = () => {
   const router = useRouter();
-  
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
-  const [findName, setFindName] = useState("");
-
   const { id } = router.query;
+  const [selectedItems, setSelectedItems] = useState<{ [itemId: string]: { item: IItem,quantity: number } }>({});
+   
+  const createOrderMutation = api.order.create.useMutation();
+
+  // Fetch PDV and items
+  const { data, isLoading } = api.items.getByPdvId.useQuery({
+    pdvId: id as string,
+  });
+
+  if (!data || isLoading) return <div>Loading ...</div>;
+
+  const pdv = data[0]?.pdv;
+  const items = data.map((item) => item.item);
   
-  const itemsQuery = api.items.getByPdvId.useQuery({ pdvId: id as string }, { suspense: false });
-  const deleteItemMutation = api.items.deleteById.useMutation();
+  // Handle item quantity change
+  const handleQuantityChange = (itemId: string, item: IItem, quantity: number) => {
+    setSelectedItems({
+      ...selectedItems,
+      [itemId]: { item, quantity },
+    });
+  };
 
-  if (itemsQuery.error) {
-    console.error(itemsQuery.error); // eslint-disable-line no-console
-    return <div>An error occurred</div>;
-  }
-
-  if (itemsQuery.isLoading) {
-    return (
-      <Box
-        sx={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          height: '100vh',
-        }}
-      >
-        <CircularProgress />
-      </Box>
-    );
-  }
-  
-  const items = itemsQuery.data ?? [];
-
-  const deleteItemById = async (id: string) => {
-    try {
-      await deleteItemMutation.mutateAsync({ id });
-      toast.success("Item excluído com sucesso.", {
+  // Finalizar Compra
+  const finalizePurchase = async () => {
+    if (Object.keys(selectedItems).length === 0) {
+      toast.error("Nenhum item selecionado.", {
         position: "top-right",
         autoClose: 3000,
         theme: "colored",
       });
-      router.reload();
-    } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : 'An error occurred';
-      toast.error(`Ocorreu um erro. ${message}`, {
+      return;
+    }
+
+    try {
+      // Transform selectedItems into the format expected by the mutation
+      const itemsArray = Object.values(selectedItems).map((itemData) => ({
+        itemId: itemData.item.id,
+        quantity: itemData.quantity,
+      }));
+
+      // Calculate the total price
+      const totalPrice = Object.values(selectedItems).reduce(
+        (total, itemData) => total + itemData.item.price * itemData.quantity,
+        0
+      );
+
+      const order = await createOrderMutation.mutateAsync({
+        pdvId: id as string,
+        items: itemsArray,
+        price: totalPrice,
+      });
+
+      toast.success("Compra finalizada com sucesso!", {
+        position: "top-right",
+        autoClose: 3000,
+        theme: "colored",
+      });
+
+      // Reset selectedItems after successful order
+      setSelectedItems({});
+    } catch (error) {
+      toast.error(`Erro ao finalizar a compra`, {
         position: "top-right",
         autoClose: 5000,
         theme: "colored",
@@ -85,223 +112,75 @@ const PDVItems: NextPage = () => {
     }
   };
 
-
-  const emptyRows =
-    rowsPerPage - Math.min(rowsPerPage, items.length - page * rowsPerPage);
-
- 
-  const handleAddItem = () => {
-    if(id && typeof id === "string"){
-      void router.push(`/pdv/${id}/item/create`);
-    }
-  };
-
-  const handleDeleteItem = (id: string) => {
-    void Swal.fire({
-      title: "Deseja excluir?",
-      text: "Essa opção não poderá ser revertida.",
-      icon: "warning",
-      showCancelButton: true,
-      cancelButtonColor: "#3085d6",
-      confirmButtonColor: "#d33",
-      cancelButtonText: "Não",
-      confirmButtonText: "Sim",
-    }).then((result: { isConfirmed: any }) => {
-      if (result.isConfirmed) {
-        try {
-          deleteItemById.mutate({ id });
-        } catch (error: any) {
-          toast.error(error.response.data.message, {
-            position: toast.POSITION.TOP_RIGHT,
-            theme: "colored",
-            autoClose: 5000,
-          });
-        }
-      }
-    });
-  };
-
-  const handleEditItem = (itemid: string) => {
-    if(id && typeof id === "string"){
-      void router.push(`/pdv/${id}/item/edit/${itemid}`);
-    }
-  };
-
-  const handleChangePage = (
-    event: React.MouseEvent<HTMLButtonElement> | null,
-    newPage: number
-  ) => {
-    setPage(newPage);
-  };
-
-  const handleChangeRowsPerPage = (
-    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    setRowsPerPage(parseInt(event.target.value));
-    setPage(0);
-  };
-
   return (
-    <>
-      <Header />
-      {items.length ? (
-      <Container maxWidth="lg" sx={{ mt: "75px" }}>
-        <Box
-          sx={{
-            my: 4,
-            display: "flex",
-            flexDirection: "column",
-            // justifyContent: 'center',
-            // alignItems: 'center',
-            height: "100%",
+    <div style={{ padding: 16, marginTop:-100 }}>
+      <Typography variant="h4" gutterBottom>
+        {pdv?.company}
+      </Typography>
+      <Grid container spacing={2}>
+        {items.map((item) => (
+          <Grid item key={item.id} xs={12} sm={6} md={4}>
+            <Paper style={{ padding: 16, border: `1px solid`, borderRadius: 4 }}>
+              <Typography variant="h5" gutterBottom>
+                {item.name}
+              </Typography>
+              <Typography variant="body1" gutterBottom>
+                Price: ${item.price}
+              </Typography>
+              <div style={{ display: 'flex', alignItems: 'center', marginTop: 8 }}>
+                <Typography variant="body1" gutterBottom style={{ marginRight: 8 }}>
+                  Quantidade:
+                </Typography>
+                <TextField
+                  id={`quantity-${item.id}`}
+                  type="number"
+                  inputProps={{ min: 0 }}
+                  value={selectedItems[item.id]?.quantity || 0}
+                  onChange={(e) => handleQuantityChange(item.id, item, parseInt(e.target.value))}
+                />
+              </div>
+              <Button
+                variant="contained"
+                style={{ color: 'white', marginTop: 16 }}
+                onClick={() => console.log('Added to cart')}
+              >
+                Adicionar ao pedido
+              </Button>
+            </Paper>
+          </Grid>
+        ))}
+      </Grid>
+      <Paper style={{ padding: 16, border: `1px solid`, borderRadius: 4, marginTop: 16 }}>
+        <Typography variant="h5" gutterBottom>
+          Pedido
+        </Typography>
+        <Typography variant="body1" gutterBottom>
+          Items: {Object.values(selectedItems)
+            .map(
+              (itemData) => `${itemData.item.name} (x${itemData.quantity})`
+            )
+            .join(", ")}
+        </Typography>
+        <Typography variant="body1" gutterBottom>
+          Preço Total: ${Object.values(selectedItems).reduce(
+            (total, itemData) => total + itemData.item.price * itemData.quantity,
+            0
+            ).toFixed(2)}
+        </Typography>
+        <Button
+          variant="contained"
+          style={{ color: 'white', marginTop: 16 }}
+          onClick={() => {
+            finalizePurchase().catch((error) => {
+              console.error('Error finalizing purchase:', error);
+            });
           }}
         >
-          <Box>
-            <ContentHeader title="Items" handleAdd={handleAddItem} />
-            <TextField
-              label="Pesquisar"
-              name="find"
-              margin="dense"
-              size="small"
-              variant="outlined"
-              fullWidth
-              value={findName}
-              sx={{
-                marginTop: 4,
-                maxWidth: "400px",
-              }}
-              onChange={(value) => {
-                setFindName(value.target.value);
-              }}
-            />
-          </Box>
-          <TableContainer
-            component={Paper}
-            sx={{
-              mt: 2,
-              bgcolor: "#fafafa",
-            }}
-          >
-            <Table size="small" aria-label="lista de usuários">
-              <TableHead>
-                <TableRow>
-                  <TableCell align="center">Editar</TableCell>
-                  <TableCell align="left">Item</TableCell>
-                  <TableCell align="left">Descrição</TableCell>
-                  <TableCell align="left">Preço</TableCell>
-                  <TableCell align="left">Quantidade</TableCell>
-                  <TableCell align="center">Excluir</TableCell>
-                  
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {(rowsPerPage > 0
-                  ? items.slice(
-                      page * rowsPerPage,
-                      page * rowsPerPage + rowsPerPage
-                    )
-                  : items
-                ).map((itemsOnPDV) => (
-                  <>
-                    <TableRow key={itemsOnPDV.item.id}>
-                      <TableCell component="th" scope="row">
-                        <IconButton
-                          aria-label="Editar"
-                          size="small"
-                          onClick={() => handleEditItem(itemsOnPDV.item.id)}
-                        >
-                          <Edit />
-                        </IconButton>
-                      </TableCell>
-                      <TableCell
-                        component="th"
-                        scope="row"
-                        sx={{
-                          width: "50%",
-                        }}
-                      >
-                        {itemsOnPDV.item.name}
-                      </TableCell>
-                      <TableCell
-                        component="th"
-                        scope="row"
-                        sx={{
-                          width: "50%",
-                        }}
-                      >
-                        {itemsOnPDV.item.description}
-                      </TableCell>
-                      <TableCell
-                        component="th"
-                        scope="row"
-                        sx={{
-                          width: "50%",
-                        }}
-                      >
-                        {itemsOnPDV.item.price}
-                      </TableCell>
-                      <TableCell
-                        component="th"
-                        scope="row"
-                        sx={{
-                          width: "50%",
-                        }}
-                      >
-                        {itemsOnPDV.quantity}
-                      </TableCell>
-                        <TableCell component="th" scope="row">
-                          <IconButton
-                            aria-label="Deletar"
-                            size="small"
-                            onClick={() => handleDeleteItem(itemsOnPDV.item.id)}
-                          >
-                            <Delete />
-                          </IconButton>
-                        </TableCell>
-                     
-                    </TableRow>
-                  </>
-                ))}
-                {emptyRows > 0 && (
-                  <TableRow style={{ height: 43 * emptyRows }}>
-                    <TableCell colSpan={4} />
-                  </TableRow>
-                )}
-              </TableBody>
-              <TableFooter>
-                <TableRow>
-                  <TablePagination
-                    rowsPerPageOptions={[5, 10, { label: "Todos", value: -1 }]}
-                    colSpan={4}
-                    count={items.length}
-                    rowsPerPage={rowsPerPage}
-                    page={page}
-                    labelRowsPerPage="Linhas por página"
-                    onPageChange={handleChangePage}
-                    onRowsPerPageChange={handleChangeRowsPerPage}
-                  />
-                </TableRow>
-              </TableFooter>
-            </Table>
-          </TableContainer>
-        </Box>
-      </Container>) : (
-        <Box
-          sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'center',
-            alignItems: 'center',
-            height: '100vh',
-          }}
-        >
-          <Skeleton variant="text" />
-          <Skeleton variant="circle" width={40} height={40} />
-          <Skeleton variant="rectangular" width={210} height={118} />
-        </Box>
-      )}
-    </>
+          Finalizar Compra
+        </Button>
+      </Paper>
+    </div>
   );
 };
 
-export default PDVItems;
+export default Store;
