@@ -1,80 +1,165 @@
-import React, { useState } from 'react';
-import {
-  Container, TextField, Button, Paper, Box,
-} from '@mui/material';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import Swal from 'sweetalert2';
-import { api } from '../../../../utils/api';
-import { useFormik, Field, FormikProvider } from 'formik';
-import { toFormikValidationSchema } from 'zod-formik-adapter';
-import z from 'zod';
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+import React from "react";
+import { Paper, TextField, Button } from "@mui/material";
+import { ContentHeader } from "../../../../components/ContentHeader";
+import { type NextPage } from "next";
+import Container from "@mui/material/Container";
+import Box from "@mui/material/Box";
+import { useRouter } from "next/router";
+import { ItemOrderHeader } from "../../../../components/ItemOrderHeader";
+import { api } from "../../../../utils/api";
+import { toast } from "react-toastify";
+import { useFormik, Field, FormikProvider } from "formik";
+import { toFormikValidationSchema } from "zod-formik-adapter";
+import z from "zod";
 
-interface ItemInput {
-  itemId: string;
-  quantity: number;
-}
-
-const createOrderSchema = z.object({
-  pdvId: z.string().min(1, 'Ponto de venda ID é obrigatório'),
-  price: z.number().min(0, 'Preço total deve ser maior que zero'),
-  items: z.array(
-    z.object({
-      itemId: z.string().min(1, 'Item ID é obrigatório'),
-      quantity: z.number().min(1, 'Quantidade deve ser maior que zero'),
-    }),
-  ),
+const createItemSchema = z.object({
+  name: z.string({ required_error: "Campo obrigatório" }),
+  description: z.string({ required_error: "Campo obrigatório" }).min(4, "Digite pelo menos 4 caracteres"),
+  price: z.number({ required_error: "Campo obrigatório" }),
+  quantity: z.number({ required_error: "Campo obrigatório" }).int(),
 });
 
-const CreateOrder = () => {
-  const createOrderMutation = api.order.create.useMutation();
-  const formik = useFormik({
-    initialValues: {
-      pdvId: '',
-      price: 0,
-      items: [] as ItemInput[],
+const CreateItem: NextPage = () => {
+  const router = useRouter();
+  const { id } = router.query;
+  const createItem = api.items.create.useMutation({
+    onSuccess: (createdItem) => {
+      toast.success("Item criado com sucesso", {
+        position: "top-right",
+        autoClose: 3000,
+        theme: "colored",
+      });
+      linkItemToPdv.mutate({
+        pdvId: id as string,
+        itemId: createdItem.id,
+        quantity: formik.values.quantity,
+      });
     },
-    validationSchema: toFormikValidationSchema(createOrderSchema),
-    onSubmit: async (values: { pdvId: string; price: number; items: ItemInput[] }) => {
-      try {
-        const response = await createOrderMutation.mutateAsync(values);
-
-        if (response.payment_link) {
-          // Redirect to the payment URL
-          window.location.href = response.payment_link;
-        } else {
-          toast.error('An error occurred while creating the order.');
-        }
-      } catch (error) {
-        console.error(error);
-        toast.error('An error occurred while creating the order.');
-      }
+    onError: (err) => {
+      toast.error("Erro ao criar item", {
+        position: "top-right",
+        autoClose: 5000,
+        theme: "colored",
+      });
+      toast.error(err.message.toString(), {
+        position: "top-right",
+        autoClose: 5000,
+        theme: "colored",
+      });
     },
   });
 
+  const linkItemToPdv = api.pdvs.linkItemToPdv.useMutation({
+    onSuccess: async () => {
+      toast.success("Item associado ao pdv com sucesso", {
+        position: "top-right",
+        autoClose: 3000,
+        theme: "colored",
+      });
+      await router.push(`/pdv/${id as string}`);
+    },
+    onError: (err) => {
+      toast.error("Erro ao associar item ao pdv", {
+        position: "top-right",
+        autoClose: 5000,
+        theme: "colored",
+      });
+      toast.error(err.message.toString(), {
+        position: "top-right",
+        autoClose: 5000,
+        theme: "colored",
+      });
+    },
+  });
+
+
+  const formik = useFormik({
+    initialValues: {
+      name: "",
+      description: "",
+      price: 1,
+      pdvId: id as string,
+      itemId: "",
+      quantity: 1,
+    },
+    validationSchema: toFormikValidationSchema(createItemSchema),
+    onSubmit: (values: { 
+      name: string; 
+      description: string; 
+      price: number;
+      pdvId: string;
+      itemId: string;
+      quantity: number;
+    }) => {
+      createItem.mutate({
+        name: values.name,
+        description: values.description,
+        price: values.price,
+      });
+    },
+
+  });
+
+
   return (
+  <>
+    {id && typeof id === "string" && <ItemOrderHeader id={id} />}
     <Container>
-      <FormikProvider value={formik}>
-        <form onSubmit={formik.handleSubmit}>
-          <Paper>
-            <Box sx={{ padding: 2 }}>
+      <Box
+        sx={{
+          my: 4,
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          width: '100%',
+        }}
+      >
+        <ContentHeader title="Adicionar item" />
+        <FormikProvider value={formik}>
+          <form onSubmit={formik.handleSubmit}>
+            <Box
+              display="flex"
+              flexDirection="column"
+              alignItems="start"
+              component={Paper}
+              width="100%"
+              padding={4}
+              mt={2}
+            >
               <Field
-                name="pdvId"
+                name="name"
                 type="text"
-                label="Ponto de venda ID"
+                label="Nome do item"
+                margin="normal"
+                autoFocus
+                fullWidth
+                as={TextField}
+                error={formik.touched.name && Boolean(formik.errors.name)}
+                helperText={formik.touched.name && formik.errors.name}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                value={formik.values.name}
+              />
+              <Field
+                name="description"
+                type="text"
+                label="Descrição"
                 margin="normal"
                 fullWidth
                 as={TextField}
-                error={formik.touched.pdvId && Boolean(formik.errors.pdvId)}
-                helperText={formik.touched.pdvId && formik.errors.pdvId}
+                error={formik.touched.description && Boolean(formik.errors.description)}
+                helperText={formik.touched.description && formik.errors.description}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
-                value={formik.values.pdvId}
+                value={formik.values.description}
               />
               <Field
                 name="price"
                 type="number"
-                label="Preço total"
+                label="Preço"
                 margin="normal"
                 fullWidth
                 as={TextField}
@@ -84,75 +169,59 @@ const CreateOrder = () => {
                 onBlur={formik.handleBlur}
                 value={formik.values.price}
               />
-              {/* Render form fields for each item */}
-                              {/* {formik.values.items.map((item, index) => (
-                <Box key={index}>
-                  <Field
-                    name={`items[${index}].itemId`}
-                    type="text"
-                    label="Item ID"
-                    margin="normal"
-                    fullWidth
-                    as={TextField}
-                    error={
-                      formik.touched.items &&
-                      formik.touched.items[index]?.itemId &&
-                      Boolean(formik.errors.items?.[index]?.itemId)
-                    }
-                    helperText={
-                      formik.touched.items &&
-                      formik.touched.items[index]?.itemId &&
-                      formik.errors.items?.[index]?.itemId
-                    }
-                    onChange={formik.handleChange}
-                    onBlur={formik.handleBlur}
-                    value={item.itemId}
-                  />
-                  <Field
-                    name={`items[${index}].quantity`}
-                    type="number"
-                    label="Quantidade"
-                    margin="normal"
-                    fullWidth
-                    as={TextField}
-                    error={
-                      formik.touched.items &&
-                      formik.touched.items[index]?.quantity &&
-                      Boolean(formik.errors.items?.[index]?.quantity)
-                    }
-                    helperText={
-                      formik.touched.items &&
-                      formik.touched.items[index]?.quantity &&
-                      formik.errors.items?.[index]?.quantity
-                    }
-                    onChange={formik.handleChange}
-                    onBlur={formik.handleBlur}
-                    value={item.quantity}
-                  />
-                </Box>
-              ))}
-
-              <Button
-                onClick={() =>
-                  formik.setFieldValue('items', [
-                    ...formik.values.items,
-                    { itemId: '', quantity: 1 },
-                  ])
-                }
+              <Field
+                name="quantity"
+                type="number"
+                label="Quantidade"
+                margin="normal"
+                fullWidth
+                as={TextField}
+                error={formik.touched.quantity && Boolean(formik.errors.quantity)}
+                helperText={formik.touched.quantity && formik.errors.quantity}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                value={formik.values.quantity}
+              />
+              <Box
+                sx={{
+                  mt: 2,
+                  width: "100%",
+                  display: "flex",
+                  flexDirection: "row",
+                  gap: 2,
+                  alignItems: "center",
+                  justifyContent: "right",
+                }}
               >
-                Adicionar Item
-              </Button> */}
-              <Button type="submit" color="primary">
-                Criar Pedido
-              </Button>
+                <Button
+                  variant="contained"
+                  color="inherit"
+                  onClick={() => router.back()}
+                  sx={{
+                    padding: "0.35rem 1rem",
+                  }}
+                  >
+                  Voltar
+                </Button>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  type="submit"
+                  sx={{
+                    padding: "0.35rem 1rem",
+                  }}
+                  >
+                  Salvar
+                </Button>
+              </Box>
             </Box>
-          </Paper>
-        </form>
-      </FormikProvider>
-      <ToastContainer />
+          </form>
+        </FormikProvider>
+      </Box>
     </Container>
+  </>
   );
+
 };
 
-export default CreateOrder;
-
+export default CreateItem;

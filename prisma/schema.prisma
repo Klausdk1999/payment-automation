@@ -75,7 +75,7 @@ model ItemsOnPDV {
     quantity  Int
     itemId    String
     item      Items @relation(fields: [itemId], references: [id])
-    pdvId     String @unique
+    pdvId     String
     pdv       PDV @relation(fields: [pdvId], references: [id])
     assignedAt DateTime @default(now())
     @@id ([pdvId, itemId])

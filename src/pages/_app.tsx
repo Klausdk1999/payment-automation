@@ -14,7 +14,7 @@ import { api } from "../utils/api";
 
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { Header } from '../components/Header';
+import { Header } from '../components/ItemOrderHeader';
 import { Box } from '@mui/material';
 
 // Client-side cache, shared for the whole session of the user in the browser.

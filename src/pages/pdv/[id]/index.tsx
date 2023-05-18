@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-import { useState, useEffect } from 'react';
-import { NextPage } from 'next';
+import { useState } from 'react';
+import type { NextPage } from 'next';
 import { api } from '../../../utils/api';
 import { toast } from 'react-toastify';
 import { useRouter } from 'next/router';
@@ -10,15 +10,10 @@ import {
   Paper,
   TextField,
   Button,
-  FormControlLabel,
-  Checkbox,
-  Select,
-  MenuItem,
   Typography,
   Grid,
 } from "@mui/material";
-import Container from "@mui/material/Container";
-import Box from "@mui/material/Box";
+import PaymentDialog from '../../../components/PaymentDialog';
 
 interface IPDV {
   id: string;
@@ -44,7 +39,8 @@ const Store: NextPage = () => {
   const router = useRouter();
   const { id } = router.query;
   const [selectedItems, setSelectedItems] = useState<{ [itemId: string]: { item: IItem,quantity: number } }>({});
-   
+  const [dialogOpen, setDialogOpen] = useState(false);
+
   const createOrderMutation = api.order.create.useMutation();
 
   // Fetch PDV and items
@@ -95,12 +91,19 @@ const Store: NextPage = () => {
         price: totalPrice,
       });
 
+      setDialogOpen(true);
+
       toast.success("Compra finalizada com sucesso!", {
         position: "top-right",
         autoClose: 3000,
         theme: "colored",
       });
 
+      setTimeout(() => {
+        order.payment_link && window.open(order.payment_link, "_blank");
+        setDialogOpen(false);
+      }, 4000);
+      
       // Reset selectedItems after successful order
       setSelectedItems({});
     } catch (error) {
@@ -114,6 +117,7 @@ const Store: NextPage = () => {
 
   return (
     <div style={{ padding: 16, marginTop:-100 }}>
+      <PaymentDialog open={dialogOpen} text='Você será redirecionado para a página de pagamento' />
       <Typography variant="h4" gutterBottom>
         {pdv?.company}
       </Typography>

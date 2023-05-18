@@ -9,7 +9,7 @@ import { type NextPage } from "next";
 import Container from "@mui/material/Container";
 import TextField from "@mui/material/TextField";
 import Box from "@mui/material/Box";
-import { Header } from "../../../../components/Header";
+import { ItemOrderHeader } from "../../../../components/ItemOrderHeader";
 import { ContentHeader } from "../../../../components/ContentHeader";
 import { Edit, Delete } from "@mui/icons-material";
 import {
@@ -38,17 +38,32 @@ const PDVItems: NextPage = () => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [findName, setFindName] = useState("");
-
+  const [items, setItems] = useState<any[]>([]);
   const { id } = router.query;
   
   const itemsQuery = api.items.getByPdvId.useQuery({ pdvId: id as string }, { suspense: false });
   const deleteItemMutation = api.items.deleteById.useMutation();
 
+  useEffect(() => {
+    setItems(itemsQuery.data ?? []);
+  }, [itemsQuery.data]);
+  
+  useEffect(() => {
+    if ( items.length === 0) return;
+    setItems( items.filter(
+      (item) =>
+        item.item.name.toUpperCase().trim().indexOf(findName.toUpperCase().trim()) >=
+        0
+    ));
+    setPage(0);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [findName]);
+
   if (itemsQuery.error) {
     console.error(itemsQuery.error); // eslint-disable-line no-console
     return <div>An error occurred</div>;
   }
-
+ 
   if (itemsQuery.isLoading) {
     return (
       <Box
@@ -63,8 +78,6 @@ const PDVItems: NextPage = () => {
       </Box>
     );
   }
-  
-  const items = itemsQuery.data ?? [];
 
   const deleteItemById = async (id: string) => {
     try {
@@ -84,8 +97,7 @@ const PDVItems: NextPage = () => {
       });
     }
   };
-
-
+  
   const emptyRows =
     rowsPerPage - Math.min(rowsPerPage, items.length - page * rowsPerPage);
 
@@ -143,8 +155,9 @@ const PDVItems: NextPage = () => {
 
   return (
     <>
-      <Header />
-      {items.length ? (
+      {id && typeof id === "string" && <ItemOrderHeader id={id} />}
+      
+      {items ? (
       <Container maxWidth="lg" sx={{ mt: "75px" }}>
         <Box
           sx={{
@@ -171,8 +184,12 @@ const PDVItems: NextPage = () => {
                 maxWidth: "400px",
               }}
               onChange={(value) => {
+                if (value.target.value === "") {
+                  setFindName(value.target.value);
+                  setItems(itemsQuery.data ?? []);
+                }else{
                 setFindName(value.target.value);
-              }}
+              }}}
             />
           </Box>
           <TableContainer
@@ -182,7 +199,7 @@ const PDVItems: NextPage = () => {
               bgcolor: "#fafafa",
             }}
           >
-            <Table size="small" aria-label="lista de usuários">
+            <Table size="small" aria-label="lista de items">
               <TableHead>
                 <TableRow>
                   <TableCell align="center">Editar</TableCell>

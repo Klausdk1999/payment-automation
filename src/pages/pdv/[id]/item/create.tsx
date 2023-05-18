@@ -8,7 +8,7 @@ import { type NextPage } from "next";
 import Container from "@mui/material/Container";
 import Box from "@mui/material/Box";
 import { useRouter } from "next/router";
-import { Header } from "../../../../components/Header";
+import { ItemOrderHeader } from "../../../../components/ItemOrderHeader";
 import { api } from "../../../../utils/api";
 import { toast } from "react-toastify";
 import { useFormik, Field, FormikProvider } from "formik";
@@ -106,7 +106,7 @@ const CreateItem: NextPage = () => {
 
   return (
   <>
-    <Header />
+    {id && typeof id === "string" && <ItemOrderHeader id={id} />}
     <Container>
       <Box
         sx={{

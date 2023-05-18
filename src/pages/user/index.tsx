@@ -9,7 +9,7 @@ import Container from "@mui/material/Container";
 import TextField from "@mui/material/TextField";
 import Box from "@mui/material/Box";
 
-import { Header } from "../../components/Header";
+import { Header } from "../../components/ItemOrderHeader";
 import { ContentHeader } from "../../components/ContentHeader";
 import { Edit, Delete } from "@mui/icons-material";
 import {
@@ -101,19 +101,16 @@ const User: NextPage = () => {
     }
   }, [users]);
 
-  // useEffect(() => {
-  //   let usersF = users.filter(
-  //     (user) =>
-  //       user.name.toUpperCase().trim().indexOf(findName.toUpperCase().trim()) >=
-  //       0
-  //   );
+  useEffect(() => {
+    setFilteredUsers(users.filter(
+      (user) =>
+        user.name.toUpperCase().trim().indexOf(findName.toUpperCase().trim()) >=
+        0
+    ));
 
-  //   setPage(0);
-
-    
-
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [findName]);
+    setPage(0);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [findName]);
 
   const handleAddUser = () => {
     void router.push("/users/create");

@@ -4,12 +4,12 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import React, { useState, useEffect } from "react";
+import { TRPCClientError } from '@trpc/client';
 import { type NextPage } from "next";
 import Container from "@mui/material/Container";
 import TextField from "@mui/material/TextField";
 import Box from "@mui/material/Box";
-
-import { Header } from "../../../../components/Header";
+import { ItemOrderHeader } from "../../../../components/ItemOrderHeader";
 import { ContentHeader } from "../../../../components/ContentHeader";
 import { Edit, Delete } from "@mui/icons-material";
 import {
@@ -23,103 +23,92 @@ import {
   IconButton,
   TableFooter,
   TablePagination,
+  CircularProgress,
+  Skeleton,
 } from "@mui/material";
 
 import { api } from "../../../../utils/api";
 import { useRouter } from "next/router";
 import { toast } from "react-toastify";
 import Swal from "sweetalert2";
-import type { User as IUser } from "@prisma/client";
-interface userData {
-  name: string;
-  email: string;
-  role: string;
-  id: string;
-}
 
-const User: NextPage = () => {
-  const [userData, setUserData] = useState<userData>({
-    name: "",
-    email: "",
-    role: "",
-    id: "",
-  });
-  let data: userData = userData;
-  if (typeof window !== "undefined") {
-    data = JSON.parse(localStorage.getItem("user")!);
-  }
-  const windowType = typeof window;
-  useEffect(() => {
-    if (data) {
-      setUserData(data);
-    }
-  }, [windowType]);
-
+const PDVOrders: NextPage = () => {
   const router = useRouter();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const getUsers: any = api.users.getAll.useQuery();
+  
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [findName, setFindName] = useState("");
+  const [items, setItems] = useState<any[]>([]);
+  const { id } = router.query;
+  
+  const itemsQuery = api.items.getByPdvId.useQuery({ pdvId: id as string }, { suspense: false });
+  const deleteItemMutation = api.items.deleteById.useMutation();
 
-  const deleteUserById = api.users.deleteById.useMutation({
-    onSuccess: () => {
-      toast.success("Usuário excluído com sucesso.", {
+  useEffect(() => {
+    setItems(itemsQuery.data ?? []);
+  }, [itemsQuery.data]);
+  
+  useEffect(() => {
+    if ( items.length === 0) return;
+    setItems( items.filter(
+      (item) =>
+        item.item.name.toUpperCase().trim().indexOf(findName.toUpperCase().trim()) >=
+        0
+    ));
+    setPage(0);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [findName]);
+
+  if (itemsQuery.error) {
+    console.error(itemsQuery.error); // eslint-disable-line no-console
+    return <div>An error occurred</div>;
+  }
+ 
+  if (itemsQuery.isLoading) {
+    return (
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: '100vh',
+        }}
+      >
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  const deleteItemById = async (id: string) => {
+    try {
+      await deleteItemMutation.mutateAsync({ id });
+      toast.success("Item excluído com sucesso.", {
         position: "top-right",
         autoClose: 3000,
         theme: "colored",
       });
       router.reload();
-    },
-    onError: (err) => {
-      toast.error(`Ocorreu um erro. ${err.message.toString()}`, {
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'An error occurred';
+      toast.error(`Ocorreu um erro. ${message}`, {
         position: "top-right",
         autoClose: 5000,
         theme: "colored",
       });
-    },
-  });
-
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
-  const [findName, setFindName] = useState("");
-  const [users, setUsers] = useState<IUser[]>([] as IUser[]);
-  const [filteredUsers, setFilteredUsers] = useState<IUser[]>([] as IUser[]);
-
+    }
+  };
+  
   const emptyRows =
-    rowsPerPage - Math.min(rowsPerPage, users.length - page * rowsPerPage);
+    rowsPerPage - Math.min(rowsPerPage, items.length - page * rowsPerPage);
 
-  useEffect(() => {
-    if (getUsers.data && getUsers.data.length > 0) {
-      const tempUsers: IUser[] = getUsers.data;
-      setUsers(tempUsers);
+ 
+  const handleAddItem = () => {
+    if(id && typeof id === "string"){
+      void router.push(`/pdv/${id}/item/create`);
     }
-  }, [getUsers]);
-
-  useEffect(() => {
-    if (userData && userData.role === "user") {
-      setFilteredUsers(users.filter((user) => user.id === userData.id));
-    } else {
-      setFilteredUsers(users);
-    }
-  }, [users]);
-
-  // useEffect(() => {
-  //   let usersF = users.filter(
-  //     (user) =>
-  //       user.name.toUpperCase().trim().indexOf(findName.toUpperCase().trim()) >=
-  //       0
-  //   );
-
-  //   setPage(0);
-
-    
-
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [findName]);
-
-  const handleAddUser = () => {
-    void router.push("/users/create");
   };
 
-  const handleDeleteUser = (id: string) => {
+  const handleDeleteItem = (id: string) => {
     void Swal.fire({
       title: "Deseja excluir?",
       text: "Essa opção não poderá ser revertida.",
@@ -132,8 +121,7 @@ const User: NextPage = () => {
     }).then((result: { isConfirmed: any }) => {
       if (result.isConfirmed) {
         try {
-          deleteUserById.mutate({ id });
-          // setFilteredUsers(filteredUsers.filter(user => user.id !== id));
+          void deleteItemById( id );
         } catch (error: any) {
           toast.error(error.response.data.message, {
             position: toast.POSITION.TOP_RIGHT,
@@ -145,8 +133,10 @@ const User: NextPage = () => {
     });
   };
 
-  const handleEditUser = (id: string) => {
-    void router.push(`/users/edit/${id}`);
+  const handleEditItem = (itemid: string) => {
+    if(id && typeof id === "string"){
+      void router.push(`/pdv/${id}/item/edit/${itemid}`);
+    }
   };
 
   const handleChangePage = (
@@ -165,7 +155,9 @@ const User: NextPage = () => {
 
   return (
     <>
-      <Header />
+      {id && typeof id === "string" && <ItemOrderHeader id={id} />}
+      
+      {items ? (
       <Container maxWidth="lg" sx={{ mt: "75px" }}>
         <Box
           sx={{
@@ -178,11 +170,7 @@ const User: NextPage = () => {
           }}
         >
           <Box>
-            {userData && userData.role === "admin" ? (
-              <ContentHeader title="Usuários" handleAdd={handleAddUser} />
-            ) : (
-              <ContentHeader title="Usuários" />
-            )}
+            <ContentHeader title="Items" handleAdd={handleAddItem} />
             <TextField
               label="Pesquisar"
               name="find"
@@ -196,8 +184,12 @@ const User: NextPage = () => {
                 maxWidth: "400px",
               }}
               onChange={(value) => {
+                if (value.target.value === "") {
+                  setFindName(value.target.value);
+                  setItems(itemsQuery.data ?? []);
+                }else{
                 setFindName(value.target.value);
-              }}
+              }}}
             />
           </Box>
           <TableContainer
@@ -207,32 +199,33 @@ const User: NextPage = () => {
               bgcolor: "#fafafa",
             }}
           >
-            <Table size="small" aria-label="lista de usuários">
+            <Table size="small" aria-label="lista de items">
               <TableHead>
                 <TableRow>
                   <TableCell align="center">Editar</TableCell>
                   <TableCell align="left">Item</TableCell>
-                  <TableCell align="left">E-mail</TableCell>
-                  {userData && userData.role === "admin" ? (
-                    <TableCell align="center">Excluir</TableCell>
-                  ) : null}
+                  <TableCell align="left">Descrição</TableCell>
+                  <TableCell align="left">Preço</TableCell>
+                  <TableCell align="left">Quantidade</TableCell>
+                  <TableCell align="center">Excluir</TableCell>
+                  
                 </TableRow>
               </TableHead>
               <TableBody>
                 {(rowsPerPage > 0
-                  ? filteredUsers.slice(
+                  ? items.slice(
                       page * rowsPerPage,
                       page * rowsPerPage + rowsPerPage
                     )
-                  : filteredUsers
-                ).map((user) => (
+                  : items
+                ).map((itemsOnPDV) => (
                   <>
-                    <TableRow key={user.id}>
+                    <TableRow key={itemsOnPDV.item.id}>
                       <TableCell component="th" scope="row">
                         <IconButton
                           aria-label="Editar"
                           size="small"
-                          onClick={() => handleEditUser(user.id)}
+                          onClick={() => handleEditItem(itemsOnPDV.item.id)}
                         >
                           <Edit />
                         </IconButton>
@@ -244,7 +237,7 @@ const User: NextPage = () => {
                           width: "50%",
                         }}
                       >
-                        {user.name}
+                        {itemsOnPDV.item.name}
                       </TableCell>
                       <TableCell
                         component="th"
@@ -253,19 +246,36 @@ const User: NextPage = () => {
                           width: "50%",
                         }}
                       >
-                        {user.email}
+                        {itemsOnPDV.item.description}
                       </TableCell>
-                      {userData && userData.role === "admin" ? (
+                      <TableCell
+                        component="th"
+                        scope="row"
+                        sx={{
+                          width: "50%",
+                        }}
+                      >
+                        {itemsOnPDV.item.price}
+                      </TableCell>
+                      <TableCell
+                        component="th"
+                        scope="row"
+                        sx={{
+                          width: "50%",
+                        }}
+                      >
+                        {itemsOnPDV.quantity}
+                      </TableCell>
                         <TableCell component="th" scope="row">
                           <IconButton
                             aria-label="Deletar"
                             size="small"
-                            onClick={() => handleDeleteUser(user.id)}
+                            onClick={() => handleDeleteItem(itemsOnPDV.item.id)}
                           >
                             <Delete />
                           </IconButton>
                         </TableCell>
-                      ) : null}
+                     
                     </TableRow>
                   </>
                 ))}
@@ -280,7 +290,7 @@ const User: NextPage = () => {
                   <TablePagination
                     rowsPerPageOptions={[5, 10, { label: "Todos", value: -1 }]}
                     colSpan={4}
-                    count={filteredUsers.length}
+                    count={items.length}
                     rowsPerPage={rowsPerPage}
                     page={page}
                     labelRowsPerPage="Linhas por página"
@@ -292,9 +302,22 @@ const User: NextPage = () => {
             </Table>
           </TableContainer>
         </Box>
-      </Container>
+      </Container>) : (
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            alignItems: 'center',
+            height: '100vh',
+          }}
+        >
+          <Skeleton variant="text" />
+          <Skeleton variant="rectangular" width={210} height={118} />
+        </Box>
+      )}
     </>
   );
 };
 
-export default User;
+export default PDVOrders;

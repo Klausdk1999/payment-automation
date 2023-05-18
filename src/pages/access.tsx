@@ -32,7 +32,7 @@ const Home: NextPage = () => {
     onSuccess: async (data) => {
       if (data.pdv) {
         localStorage.setItem("pdv", JSON.stringify(data.pdv));
-        await router.push(`/pdv/${data.pdv.id}`);
+        await router.push(`/pdv/${data.pdv.id}/item`);
       }
     },
     onError: (err) => {

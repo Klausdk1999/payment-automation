@@ -9,7 +9,7 @@ import Container from "@mui/material/Container";
 import TextField from "@mui/material/TextField";
 import Box from "@mui/material/Box";
 
-import { Header } from "../../components/Header";
+import { Header } from "../../components/ItemOrderHeader";
 import { ContentHeader } from "../../components/ContentHeader";
 import { Edit } from "@mui/icons-material";
 import {
@@ -57,7 +57,6 @@ const PDV: NextPage = () => {
 
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
-  const [findName, setFindName] = useState("");
   const [pdv, setpdv] = useState<IPDVData[]>(
     [] as IPDVData[]
   );
@@ -128,22 +127,6 @@ const PDV: NextPage = () => {
         >
           <Box>
             <ContentHeader title="Pontos de Vendas" handleAdd={handleAddPDV} />
-            <TextField
-              label="Pesquisar"
-              name="find"
-              margin="dense"
-              size="small"
-              variant="outlined"
-              fullWidth
-              value={findName}
-              sx={{
-                marginTop: 4,
-                maxWidth: "400px",
-              }}
-              onChange={(value) => {
-                setFindName(value.target.value);
-              }}
-            />
           </Box>
           <TableContainer
             component={Paper}
