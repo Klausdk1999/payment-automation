@@ -14,7 +14,7 @@ const PaymentDialog: React.FC<PaymentDialogProps> = ({ open, text }) => {
       onClose={() => { }}
       aria-labelledby="alert-dialog-title"
       aria-describedby="alert-dialog-description"
-      sx={{ minWidth: '400px', bgcolor:'#1da89a' }} // Set width here
+      sx={{ minWidth: '400px',}} // Set width here
     >
       <DialogTitle id="alert-dialog-title">{"Atenção"}</DialogTitle>
       <Box p={2}> {/* Add padding here */}

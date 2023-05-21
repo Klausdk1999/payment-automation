@@ -9,7 +9,7 @@ import Container from "@mui/material/Container";
 import TextField from "@mui/material/TextField";
 import Box from "@mui/material/Box";
 
-import { Header } from "../../components/ItemOrderHeader";
+import { Header } from "../../components/Header";
 import { ContentHeader } from "../../components/ContentHeader";
 import { Edit, Delete } from "@mui/icons-material";
 import {
@@ -46,6 +46,7 @@ const User: NextPage = () => {
   });
   let data: userData = userData;
   if (typeof window !== "undefined") {
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     data = JSON.parse(localStorage.getItem("user")!);
   }
   const windowType = typeof window;

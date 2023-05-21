@@ -1,53 +1,54 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-import * as React from "react";
-import Button from "@mui/material/Button";
-import TextField from "@mui/material/TextField";
-import Box from "@mui/material/Box";
-import Typography from "@mui/material/Typography";
-import Container from "@mui/material/Container";
-import logo from "../assets/images/logo.jpeg";
-import Image from "next/image";
-import Head from "next/head";
-import { type NextPage } from "next";
-import { api } from "../utils/api";
-import { useRouter } from "next/router";
-import Copyright from "../components/Copyright";
-import { toast } from "react-toastify";
-import { useFormik, Field, FormikProvider } from "formik";
-import { toFormikValidationSchema } from "zod-formik-adapter";
-import z from "zod";
+import * as React from 'react';
+import Link from 'next/link';
+import Button from '@mui/material/Button';
+import TextField from '@mui/material/TextField';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
+import Container from '@mui/material/Container';
+import logo from '../assets/images/logo.jpeg';
+import Image from 'next/image';
+import Head from 'next/head';
+import { type NextPage } from 'next';
+import { api } from '../utils/api';
+import { useRouter } from 'next/router';
+import Copyright from '../components/Copyright';
+import { toast } from 'react-toastify';
+import { useFormik, Field, FormikProvider } from 'formik';
+import { toFormikValidationSchema } from 'zod-formik-adapter';
+import z from 'zod';
 
 const loginSchema = z.object({
   email: z
-    .string({ required_error: "Campo obrigatório" })
-    .email("Digite um e-mail válido"),
+    .string({ required_error: 'Campo obrigatório' })
+    .email('Digite um e-mail válido'),
   password: z
-    .string({ required_error: "Campo obrigatório" })
-    .min(4, "A senha tem no mínimo 4 caracteres"),
+    .string({ required_error: 'Campo obrigatório' })
+    .min(4, 'A senha tem no mínimo 4 caracteres'),
 });
 
 const Home: NextPage = () => {
   const router = useRouter();
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const login = api.auth.login.useMutation({
-    onSuccess: async (data) => {
+    onSuccess: async data => {
       if (data.user) {
-        localStorage.setItem("user", JSON.stringify(data.user));
+        localStorage.setItem('user', JSON.stringify(data.user));
       }
-      await router.push("/pdv");
+      await router.push('/pdv');
     },
-    onError: (err) => {
-      toast.error("Ocorreu um erro. Verifique suas credenciais.");
+    onError: err => {
+      toast.error('Ocorreu um erro. Verifique suas credenciais.');
     },
   });
 
   const formik = useFormik({
     initialValues: {
-      email: "",
-      password: "",
+      email: '',
+      password: '',
     },
     validationSchema: toFormikValidationSchema(loginSchema),
-    onSubmit: (values) => {
+    onSubmit: values => {
       login.mutate({
         email: values.email,
         password: values.password,
@@ -63,17 +64,17 @@ const Home: NextPage = () => {
       <Box
         sx={{
           marginTop: 8,
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
         }}
       >
         <Image
           src={logo}
           alt="Logo da Empresa QuickPay"
           style={{
-            width: "250px",
-            height: "200px",
+            width: '250px',
+            height: '200px',
           }}
         />
         <FormikProvider value={formik}>
@@ -116,6 +117,16 @@ const Home: NextPage = () => {
                 >
                   Entrar
                 </Button>
+                <div
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    height: '100%',
+                  }}
+                >
+                  <Link href="/access">Acesso para o painel de loja</Link>
+                </div>
               </div>
             </Box>
           </form>

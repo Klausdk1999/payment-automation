@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import * as React from "react";
+import Link from 'next/link';
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 import Box from "@mui/material/Box";
@@ -115,6 +116,9 @@ const Home: NextPage = () => {
                 >
                   Entrar
                 </Button>
+                <Link href="/login">
+                  Login para funcionários QuickPay
+                </Link>
               </div>
             </Box>
           </form>

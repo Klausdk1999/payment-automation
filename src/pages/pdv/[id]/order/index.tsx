@@ -37,34 +37,35 @@ const PDVOrders: NextPage = () => {
   
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
-  const [findName, setFindName] = useState("");
-  const [items, setItems] = useState<any[]>([]);
+  const [find, setFind] = useState("");
+  const [orders, setOrders] = useState<any[]>([]);
   const { id } = router.query;
   
-  const itemsQuery = api.items.getByPdvId.useQuery({ pdvId: id as string }, { suspense: false });
-  const deleteItemMutation = api.items.deleteById.useMutation();
+  const ordersQuery = api.order.getByPdvId.useQuery({ pdvId: id as string }, { suspense: false });
+  const deleteOrderMutation = api.items.deleteById.useMutation();
 
   useEffect(() => {
-    setItems(itemsQuery.data ?? []);
-  }, [itemsQuery.data]);
+    setOrders(ordersQuery.data ?? []);
+  }, [ordersQuery.data]);
   
   useEffect(() => {
-    if ( items.length === 0) return;
-    setItems( items.filter(
-      (item) =>
-        item.item.name.toUpperCase().trim().indexOf(findName.toUpperCase().trim()) >=
-        0
-    ));
+    if ( orders.length === 0) return;
+    setOrders(
+      orders.filter(
+        order =>
+          order.id.toUpperCase().trim().indexOf(find.toUpperCase().trim()) >= 0,
+      ),
+    );
     setPage(0);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [findName]);
+  }, [find]);
 
-  if (itemsQuery.error) {
-    console.error(itemsQuery.error); // eslint-disable-line no-console
+  if (ordersQuery.error) {
+    console.error(ordersQuery.error); // eslint-disable-line no-console
     return <div>An error occurred</div>;
   }
  
-  if (itemsQuery.isLoading) {
+  if (ordersQuery.isLoading) {
     return (
       <Box
         sx={{
@@ -79,10 +80,10 @@ const PDVOrders: NextPage = () => {
     );
   }
 
-  const deleteItemById = async (id: string) => {
+  const deleteOrderById = async (id: string) => {
     try {
-      await deleteItemMutation.mutateAsync({ id });
-      toast.success("Item excluído com sucesso.", {
+      await deleteOrderMutation.mutateAsync({ id });
+      toast.success("Order excluído com sucesso.", {
         position: "top-right",
         autoClose: 3000,
         theme: "colored",
@@ -99,14 +100,7 @@ const PDVOrders: NextPage = () => {
   };
   
   const emptyRows =
-    rowsPerPage - Math.min(rowsPerPage, items.length - page * rowsPerPage);
-
- 
-  const handleAddItem = () => {
-    if(id && typeof id === "string"){
-      void router.push(`/pdv/${id}/item/create`);
-    }
-  };
+    rowsPerPage - Math.min(rowsPerPage, orders.length - page * rowsPerPage);
 
   const handleDeleteItem = (id: string) => {
     void Swal.fire({
@@ -121,7 +115,7 @@ const PDVOrders: NextPage = () => {
     }).then((result: { isConfirmed: any }) => {
       if (result.isConfirmed) {
         try {
-          void deleteItemById( id );
+          void deleteOrderById(id);
         } catch (error: any) {
           toast.error(error.response.data.message, {
             position: toast.POSITION.TOP_RIGHT,
@@ -155,154 +149,157 @@ const PDVOrders: NextPage = () => {
 
   return (
     <>
-      {id && typeof id === "string" && <ItemOrderHeader id={id} />}
-      
-      {items ? (
-      <Container maxWidth="lg" sx={{ mt: "75px" }}>
-        <Box
-          sx={{
-            my: 4,
-            display: "flex",
-            flexDirection: "column",
-            // justifyContent: 'center',
-            // alignItems: 'center',
-            height: "100%",
-          }}
-        >
-          <Box>
-            <ContentHeader title="Items" handleAdd={handleAddItem} />
-            <TextField
-              label="Pesquisar"
-              name="find"
-              margin="dense"
-              size="small"
-              variant="outlined"
-              fullWidth
-              value={findName}
-              sx={{
-                marginTop: 4,
-                maxWidth: "400px",
-              }}
-              onChange={(value) => {
-                if (value.target.value === "") {
-                  setFindName(value.target.value);
-                  setItems(itemsQuery.data ?? []);
-                }else{
-                setFindName(value.target.value);
-              }}}
-            />
-          </Box>
-          <TableContainer
-            component={Paper}
+      {id && typeof id === 'string' && <ItemOrderHeader id={id} />}
+
+      {orders ? (
+        <Container maxWidth="lg" sx={{ mt: '75px' }}>
+          <Box
             sx={{
-              mt: 2,
-              bgcolor: "#fafafa",
+              my: 4,
+              display: 'flex',
+              flexDirection: 'column',
+              // justifyContent: 'center',
+              // alignItems: 'center',
+              height: '100%',
             }}
           >
-            <Table size="small" aria-label="lista de items">
-              <TableHead>
-                <TableRow>
-                  <TableCell align="center">Editar</TableCell>
-                  <TableCell align="left">Item</TableCell>
-                  <TableCell align="left">Descrição</TableCell>
-                  <TableCell align="left">Preço</TableCell>
-                  <TableCell align="left">Quantidade</TableCell>
-                  <TableCell align="center">Excluir</TableCell>
-                  
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {(rowsPerPage > 0
-                  ? items.slice(
-                      page * rowsPerPage,
-                      page * rowsPerPage + rowsPerPage
-                    )
-                  : items
-                ).map((itemsOnPDV) => (
-                  <>
-                    <TableRow key={itemsOnPDV.item.id}>
-                      <TableCell component="th" scope="row">
-                        <IconButton
-                          aria-label="Editar"
-                          size="small"
-                          onClick={() => handleEditItem(itemsOnPDV.item.id)}
+            <Box>
+              <TextField
+                label="Pesquisar"
+                name="find"
+                margin="dense"
+                size="small"
+                variant="outlined"
+                fullWidth
+                value={find}
+                sx={{
+                  marginTop: 4,
+                  maxWidth: '400px',
+                }}
+                onChange={value => {
+                  if (value.target.value === '') {
+                    setFind(value.target.value);
+                    setOrders(ordersQuery.data ?? []);
+                  } else {
+                    setFind(value.target.value);
+                  }
+                }}
+              />
+            </Box>
+            <TableContainer
+              component={Paper}
+              sx={{
+                mt: 2,
+                bgcolor: '#fafafa',
+              }}
+            >
+              <Table size="small" aria-label="lista de pedidos">
+                <TableHead>
+                  <TableRow>
+                    <TableCell align="center">Editar</TableCell>
+                    <TableCell align="left">Preço total</TableCell>
+                    <TableCell align="left">Items</TableCell>
+                    <TableCell align="left">Status</TableCell>
+                    <TableCell align="left">Link de pagamento</TableCell>
+                    <TableCell align="center">Finalizar</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {(rowsPerPage > 0
+                    ? orders.slice(
+                        page * rowsPerPage,
+                        page * rowsPerPage + rowsPerPage,
+                      )
+                    : orders
+                  ).map(orderOnPDV => (
+                    <>
+                      <TableRow key={orderOnPDV.id}>
+                        <TableCell component="th" scope="row">
+                          <IconButton
+                            aria-label="Editar"
+                            size="small"
+                            onClick={() => handleEditItem(orderOnPDV.id)}
+                          >
+                            <Edit />
+                          </IconButton>
+                        </TableCell>
+                        <TableCell
+                          component="th"
+                          scope="row"
+                          sx={{
+                            width: '50%',
+                          }}
                         >
-                          <Edit />
-                        </IconButton>
-                      </TableCell>
-                      <TableCell
-                        component="th"
-                        scope="row"
-                        sx={{
-                          width: "50%",
-                        }}
-                      >
-                        {itemsOnPDV.item.name}
-                      </TableCell>
-                      <TableCell
-                        component="th"
-                        scope="row"
-                        sx={{
-                          width: "50%",
-                        }}
-                      >
-                        {itemsOnPDV.item.description}
-                      </TableCell>
-                      <TableCell
-                        component="th"
-                        scope="row"
-                        sx={{
-                          width: "50%",
-                        }}
-                      >
-                        {itemsOnPDV.item.price}
-                      </TableCell>
-                      <TableCell
-                        component="th"
-                        scope="row"
-                        sx={{
-                          width: "50%",
-                        }}
-                      >
-                        {itemsOnPDV.quantity}
-                      </TableCell>
+                          {orderOnPDV.price}
+                        </TableCell>
+                        <TableCell
+                          component="th"
+                          scope="row"
+                          sx={{
+                            width: '50%',
+                          }}
+                        >
+                          {orderOnPDV.items}
+                        </TableCell>
+                        <TableCell
+                          component="th"
+                          scope="row"
+                          sx={{
+                            width: '50%',
+                          }}
+                        >
+                          {orderOnPDV.status}
+                        </TableCell>
+                        <TableCell
+                          component="th"
+                          scope="row"
+                          sx={{
+                            width: '50%',
+                          }}
+                        >
+                          {orderOnPDV.payment_link}
+                        </TableCell>
                         <TableCell component="th" scope="row">
                           <IconButton
                             aria-label="Deletar"
                             size="small"
-                            onClick={() => handleDeleteItem(itemsOnPDV.item.id)}
+                            onClick={() => handleDeleteItem(orderOnPDV.id)}
                           >
                             <Delete />
                           </IconButton>
                         </TableCell>
-                     
+                      </TableRow>
+                    </>
+                  ))}
+                  {emptyRows > 0 && (
+                    <TableRow style={{ height: 43 * emptyRows }}>
+                      <TableCell colSpan={4} />
                     </TableRow>
-                  </>
-                ))}
-                {emptyRows > 0 && (
-                  <TableRow style={{ height: 43 * emptyRows }}>
-                    <TableCell colSpan={4} />
+                  )}
+                </TableBody>
+                <TableFooter>
+                  <TableRow>
+                    <TablePagination
+                      rowsPerPageOptions={[
+                        5,
+                        10,
+                        { label: 'Todos', value: -1 },
+                      ]}
+                      colSpan={4}
+                      count={orders.length}
+                      rowsPerPage={rowsPerPage}
+                      page={page}
+                      labelRowsPerPage="Linhas por página"
+                      onPageChange={handleChangePage}
+                      onRowsPerPageChange={handleChangeRowsPerPage}
+                    />
                   </TableRow>
-                )}
-              </TableBody>
-              <TableFooter>
-                <TableRow>
-                  <TablePagination
-                    rowsPerPageOptions={[5, 10, { label: "Todos", value: -1 }]}
-                    colSpan={4}
-                    count={items.length}
-                    rowsPerPage={rowsPerPage}
-                    page={page}
-                    labelRowsPerPage="Linhas por página"
-                    onPageChange={handleChangePage}
-                    onRowsPerPageChange={handleChangeRowsPerPage}
-                  />
-                </TableRow>
-              </TableFooter>
-            </Table>
-          </TableContainer>
-        </Box>
-      </Container>) : (
+                </TableFooter>
+              </Table>
+            </TableContainer>
+          </Box>
+        </Container>
+      ) : (
         <Box
           sx={{
             display: 'flex',

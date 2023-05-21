@@ -10,7 +10,7 @@ import Box from '@mui/material/Box';
 import { Paper, TextField, FormControlLabel, Checkbox, Button } from '@mui/material';
 import { ContentHeader } from '../../../components/ContentHeader';
 
-import { Header } from '../../../components/ItemOrderHeader';
+import { Header } from '../../../components/Header';
 
 import { useRouter } from 'next/router';
 import { api } from "../../../utils/api";
