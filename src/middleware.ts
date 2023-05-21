@@ -3,6 +3,16 @@ import type { NextRequest } from 'next/server';
 import { verifyAuth } from './utils/auth';
 
 export async function middleware(req: NextRequest) {
+  const token = req.cookies.get('user-token')?.value;
+  if (!token) return NextResponse.redirect(new URL('/login', req.url));
+  const verifiedToken =
+    token &&
+    (await verifyAuth(token).catch(err => {
+      console.error(err);
+    }));
+
+  if (verifiedToken === '')
+    return NextResponse.redirect(new URL('/login', req.url));
   if (
     req.nextUrl.pathname === '/api/notification' ||
     req.nextUrl.pathname === '/notificationInfo' ||
@@ -14,20 +24,6 @@ export async function middleware(req: NextRequest) {
   if (req.nextUrl.pathname === '/') {
     return NextResponse.redirect(new URL('/login', req.url));
   }
-
-  const token = req.cookies.get('user-token')?.value;
-  if (!token) return NextResponse.redirect(new URL('/login', req.url));
-  const verifiedToken =
-    token &&
-    (await verifyAuth(token).catch(err => {
-      console.error(err);
-    }));
-
-  if (
-    verifiedToken === ''
-  )
-    return NextResponse.redirect(new URL('/login', req.url));
-
   if (
     verifiedToken &&
     req.nextUrl.pathname === `/users/edit/${verifiedToken?.id}`
@@ -63,12 +59,5 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: [
-    '/',
-    '/pdv',
-    '/users',
-    '/login',
-    '/pdv/:path*',
-    '/users/:path*',
-  ],
+  matcher: ['/', '/pdv', '/users', '/login', '/pdv/:path*', '/users/:path*'],
 };
