@@ -22,11 +22,15 @@ const OrderSummaryCard: React.FC<OrderSummaryCardProps> = ({
   );
   return (
     <Paper
+      variant="outlined"
+      square
       style={{
         padding: 16,
-        border: `1px solid`,
-        borderRadius: 4,
-        marginTop: 16,
+        marginTop: -200,
+        bottom: 0,
+        left: 0,
+        right: 0,
+        position: 'fixed',
       }}
     >
       <Typography variant="h5" gutterBottom>
