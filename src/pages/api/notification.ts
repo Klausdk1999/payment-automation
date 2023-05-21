@@ -39,12 +39,12 @@ export default async function handler(
       res
         .status(500)
         .send(
-          'Error occurred while forwarding data to tRPC notification route',
+          // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+          `Error occurred while forwarding data to tRPC notification route ${error}`
         );
     }
   }
   if (method === 'GET') {
     res.status(200).json(lastReceivedState);
   }
-
 }
