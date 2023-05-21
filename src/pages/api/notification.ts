@@ -1,7 +1,7 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import type { NextApiRequest, NextApiResponse } from 'next';
 import axios from 'axios';
-import { env } from 'process';
+import { env } from '../../env.mjs';
 let lastReceivedState: any = { nada: 'nada' };
 
 export default async function handler(
@@ -10,41 +10,32 @@ export default async function handler(
 ) {
   const method = req.method;
 
-  if (method == 'GET') {
-    res.status(200).json(lastReceivedState);
-  }
-
-  if (method == 'POST') {
-    console.log(req.body);
-    lastReceivedState = JSON.stringify(req.body);
+  if (method === 'POST') {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    lastReceivedState = req.body;
 
     // Forward the data to tRPC notification route
     try {
-      const response = await axios.post(
-        `${env.APP_URL!}/api/trpc/order.notification}`        ,
-        req.body,
+      const result = await axios.post(
+        `${env.APP_URL}/api/trpc/order.notification`,
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        { json: req.body },
       );
-
-      if (response.status === 200) {
+      if (result.status === 200) {
         console.log('Data forwarded successfully to tRPC notification route');
         res
           .status(200)
           .send('Data forwarded successfully to tRPC notification route');
       } else {
-        console.error(
-          'Error occurred while forwarding data to tRPC notification route',
-        );
-        res
-          .status(500)
-          .send(
-            'Error occurred while forwarding data to tRPC notification route',
-          );
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        lastReceivedState = req.body;
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+        throw new Error(result.data);
       }
     } catch (error) {
-      console.error(
-        'Error occurred while forwarding data to tRPC notification route: ',
-        error,
-      );
+      // console.error(error);
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      lastReceivedState = req.body;
       res
         .status(500)
         .send(
@@ -52,4 +43,8 @@ export default async function handler(
         );
     }
   }
+  if (method === 'GET') {
+    res.status(200).json(lastReceivedState);
+  }
+
 }

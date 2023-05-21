@@ -275,17 +275,19 @@ export const ordersRouter = createTRPCRouter({
       z.object({
         action: z.string(),
         api_version: z.string(),
+        application_id: z.string(),
+        date_created: z.string(),
+        id: z.any(),
+        live_mode: z.any(),
+        type: z.string(),
+        user_id: z.any(),
         data: z.object({
           id: z.string(),
         }),
-        date_created: z.string(),
-        id: z.number(),
-        live_mode: z.boolean(),
-        type: z.string(),
-        user_id: z.string(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
+      console.log('Notification received', input);
       // Check if the action is "payment.created"
       if (input.data.id) {
         // Fetch the payment information using the data.id
@@ -294,11 +296,11 @@ export const ordersRouter = createTRPCRouter({
           {
             headers: {
               // Add your access token here
-              Authorization: `Bearer ${env.ACCESS_TOKEN}}`,
+              Authorization: `Bearer ${env.ACCESS_TOKEN}`,
             },
           },
         );
-
+        console.log('Payment info', response)
         const paymentInfo = response.data as PaymentInfo;
 
         // Extract the external_reference and status from the paymentInfo

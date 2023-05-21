@@ -12,6 +12,7 @@ export default function Dashboard() {
     const fetchData = async () => {
       try {
         const res = await fetch('/api/notification');
+        console.log(res);
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         const json = await res.json();
         // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
@@ -19,7 +20,6 @@ export default function Dashboard() {
       } catch (err) {
         setError(err as Error);
       }
-
     };
 
     fetchData().catch(err => {
@@ -72,7 +72,7 @@ export default function Dashboard() {
             m: 2,
           }}
         >
-          Dashboard de Controle
+          Data:
         </Card>
         <Stack
           direction="row"
@@ -83,15 +83,16 @@ export default function Dashboard() {
           <Card
             sx={{
               fontSize: 20,
-              textAlign: 'center',
+              textAlign: 'left', // Set to 'left' for better JSON alignment
               fontWeight: 400,
               width: 800,
               height: 600,
               p: 2,
               m: 2,
+              overflow: 'auto', // Enable scrolling if the content is larger than the card
             }}
           >
-            {JSON.stringify(data)}
+            <pre>{JSON.stringify(data, null, 2)}</pre>
           </Card>
         </Stack>
       </Stack>
