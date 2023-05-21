@@ -11,7 +11,7 @@ export default function Dashboard() {
   React.useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await fetch('/api/data');
+        const res = await fetch('/api/notification');
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         const json = await res.json();
         // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
