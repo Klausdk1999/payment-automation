@@ -13,6 +13,10 @@ export async function middleware(req: NextRequest) {
   if (verifiedToken === "")
     return NextResponse.redirect(new URL("/login", req.url));
 
+  if (req.nextUrl.pathname === '/order/notification') {
+    return;
+  }
+  
   if (
     verifiedToken &&
     req.nextUrl.pathname === `/users/edit/${verifiedToken?.id}`

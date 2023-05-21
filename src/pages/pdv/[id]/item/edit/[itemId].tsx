@@ -28,6 +28,7 @@ const UpdateItem: NextPage = () => {
   const [item, setItem] = useState<any | null>(null);
 
   const { mutate: getItem, isLoading: isGettingData } = api.items.getById.useMutation({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     onSuccess: (data: any) => {
       setItem(data);
     },
