@@ -198,7 +198,7 @@ const PDVOrders: NextPage = () => {
                   <TableRow>
                     <TableCell align="center">Editar</TableCell>
                     <TableCell align="left">Preço total</TableCell>
-                    <TableCell align="left">Items</TableCell>
+                    <TableCell align="left">ID</TableCell>
                     <TableCell align="left">Status</TableCell>
                     <TableCell align="left">Link de pagamento</TableCell>
                     <TableCell align="center">Finalizar</TableCell>
@@ -239,7 +239,7 @@ const PDVOrders: NextPage = () => {
                             width: '50%',
                           }}
                         >
-                          {orderOnPDV.items}
+                          {orderOnPDV.id}
                         </TableCell>
                         <TableCell
                           component="th"
