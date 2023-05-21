@@ -4,7 +4,6 @@ import { verifyAuth } from './utils/auth';
 
 export async function middleware(req: NextRequest) {
   const token = req.cookies.get('user-token')?.value;
-  if (!token) return NextResponse.redirect(new URL('/login', req.url));
   const verifiedToken =
     token &&
     (await verifyAuth(token).catch(err => {
