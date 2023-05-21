@@ -277,7 +277,6 @@ export const ordersRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      console.log('Notification received', input);
       // Check if the action is "payment.created"
       if (input.data.id) {
         // Fetch the payment information using the data.id
@@ -290,7 +289,6 @@ export const ordersRouter = createTRPCRouter({
             },
           },
         );
-        console.log('Payment info', response);
         const paymentInfo = response.data as PaymentInfo;
 
         // Extract the external_reference and status from the paymentInfo

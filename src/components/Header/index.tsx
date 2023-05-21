@@ -20,7 +20,7 @@ import { useRouter } from 'next/router';
 import { api } from '../../utils/api';
 import { toast } from 'react-toastify';
 
-const pages = ['PDVs', 'Usuários'];
+const pages = ['PDVs', 'Usuários', 'Log de pagamentos'];
 
 export function Header() {
   const router = useRouter();
@@ -54,6 +54,9 @@ export function Header() {
     } 
     if (page === 'Usuários') {
       void router.push('/user');
+    }
+    if (page === 'Log de pagamentos') {
+      void router.push('/notificationInfo');
     }
   };
   

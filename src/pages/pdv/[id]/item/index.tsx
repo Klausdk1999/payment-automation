@@ -281,7 +281,7 @@ const PDVItems: NextPage = () => {
                 ))}
                 {emptyRows > 0 && (
                   <TableRow style={{ height: 43 * emptyRows }}>
-                    <TableCell colSpan={4} />
+                    <TableCell colSpan={6} />
                   </TableRow>
                 )}
               </TableBody>

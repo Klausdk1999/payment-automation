@@ -6,12 +6,15 @@ import { api } from '../../../utils/api';
 import { toast } from 'react-toastify';
 import { useRouter } from 'next/router';
 import React from "react";
+import ItemCard from '../../../components/ItemCard';
+import OrderSummaryCard from '../../../components/OrderSummary';
 import {
   Paper,
   TextField,
-  Button,
+  Box,
   Typography,
   Grid,
+  CircularProgress,
 } from "@mui/material";
 import PaymentDialog from '../../../components/PaymentDialog';
 
@@ -19,14 +22,13 @@ interface IPDV {
   id: string;
   type: string;
   company: string;
-  // Add other fields as needed
 }
 
-interface IItem {
+export interface IItem {
   id: string;
   name: string;
   price: number;
-  // Add other fields as needed
+  description?: string;
 }
 interface IItemsOnPDV {
   id: string;
@@ -44,11 +46,12 @@ const Store: NextPage = () => {
   const createOrderMutation = api.order.create.useMutation();
 
   // Fetch PDV and items
-  const { data, isLoading } = api.items.getByPdvId.useQuery({
+  const { data, isLoading, isError } = api.items.getByPdvId.useQuery({
     pdvId: id as string,
   });
 
-  if (!data || isLoading) return <div>Loading ...</div>;
+  if (isLoading) return <CircularProgress />;
+  if (isError) return <div>Erro buscando informações.</div>;
 
   const pdv = data[0]?.pdv;
   const items = data.map((item) => item.item);
@@ -116,74 +119,32 @@ const Store: NextPage = () => {
   };
 
   return (
-    <div style={{ padding: 16, marginTop:-100 }}>
-      <PaymentDialog open={dialogOpen} text='Você será redirecionado para a página de pagamento' />
+    <Box sx={{ padding: 2 }}>
+      <PaymentDialog
+        open={dialogOpen}
+        text="Você será redirecionado para a página de pagamento"
+      />
       <Typography variant="h4" gutterBottom>
         {pdv?.company}
       </Typography>
       <Grid container spacing={2}>
-        {items.map((item) => (
+        {items.map(item => (
           <Grid item key={item.id} xs={12} sm={6} md={4}>
-            <Paper style={{ padding: 16, border: `1px solid`, borderRadius: 4 }}>
-              <Typography variant="h5" gutterBottom>
-                {item.name}
-              </Typography>
-              <Typography variant="body1" gutterBottom>
-                Price: ${item.price}
-              </Typography>
-              <div style={{ display: 'flex', alignItems: 'center', marginTop: 8 }}>
-                <Typography variant="body1" gutterBottom style={{ marginRight: 8 }}>
-                  Quantidade:
-                </Typography>
-                <TextField
-                  id={`quantity-${item.id}`}
-                  type="number"
-                  inputProps={{ min: 0 }}
-                  value={selectedItems[item.id]?.quantity || 0}
-                  onChange={(e) => handleQuantityChange(item.id, item, parseInt(e.target.value))}
-                />
-              </div>
-              <Button
-                variant="contained"
-                style={{ color: 'white', marginTop: 16 }}
-                onClick={() => console.log('Added to cart')}
-              >
-                Adicionar ao pedido
-              </Button>
-            </Paper>
+            <ItemCard
+              item={item}
+              selectedQuantity={selectedItems[item.id]?.quantity || 0}
+              onQuantityChange={quantity =>
+                handleQuantityChange(item.id, item, quantity)
+              }
+            />
           </Grid>
         ))}
       </Grid>
-      <Paper style={{ padding: 16, border: `1px solid`, borderRadius: 4, marginTop: 16 }}>
-        <Typography variant="h5" gutterBottom>
-          Pedido
-        </Typography>
-        <Typography variant="body1" gutterBottom>
-          Items: {Object.values(selectedItems)
-            .map(
-              (itemData) => `${itemData.item.name} (x${itemData.quantity})`
-            )
-            .join(", ")}
-        </Typography>
-        <Typography variant="body1" gutterBottom>
-          Preço Total: ${Object.values(selectedItems).reduce(
-            (total, itemData) => total + itemData.item.price * itemData.quantity,
-            0
-            ).toFixed(2)}
-        </Typography>
-        <Button
-          variant="contained"
-          style={{ color: 'white', marginTop: 16 }}
-          onClick={() => {
-            finalizePurchase().catch((error) => {
-              console.error('Error finalizing purchase:', error);
-            });
-          }}
-        >
-          Finalizar Compra
-        </Button>
-      </Paper>
-    </div>
+      <OrderSummaryCard
+        selectedItems={selectedItems}
+        finalizePurchase={finalizePurchase}
+      />
+    </Box>
   );
 };
 

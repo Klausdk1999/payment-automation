@@ -20,7 +20,7 @@ import { useRouter } from 'next/router';
 import { api } from '../../utils/api';
 import { toast } from 'react-toastify';
 
-const pages = ['Orders', 'Items', 'Loja'];
+const pages = ['Pedidos', 'Items', 'Loja'];
 
 interface ItemOrderHeaderProps {
   id: string;
@@ -52,7 +52,7 @@ export const ItemOrderHeader: React.FC<ItemOrderHeaderProps> = ({ id }) => {
   const handleMenuClick = (page: string) => {
     handleCloseNavMenu();
 
-    if (page === 'Orders') {
+    if (page === 'Pedidos') {
       void router.push(`/pdv/${id}/order`);
     } 
     if (page === 'Items') {

@@ -3,15 +3,16 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from 'react';
 import { TRPCClientError } from '@trpc/client';
-import { type NextPage } from "next";
-import Container from "@mui/material/Container";
-import TextField from "@mui/material/TextField";
-import Box from "@mui/material/Box";
-import { ItemOrderHeader } from "../../../../components/ItemOrderHeader";
-import { ContentHeader } from "../../../../components/ContentHeader";
-import { Edit, Delete } from "@mui/icons-material";
+import { type NextPage } from 'next';
+import Container from '@mui/material/Container';
+import TextField from '@mui/material/TextField';
+import Box from '@mui/material/Box';
+import { ItemOrderHeader } from '../../../../components/ItemOrderHeader';
+import { ContentHeader } from '../../../../components/ContentHeader';
+import { Edit, Delete } from '@mui/icons-material';
+import Link from 'next/link';
 import {
   TableContainer,
   Paper,
@@ -25,31 +26,34 @@ import {
   TablePagination,
   CircularProgress,
   Skeleton,
-} from "@mui/material";
+} from '@mui/material';
 
-import { api } from "../../../../utils/api";
-import { useRouter } from "next/router";
-import { toast } from "react-toastify";
-import Swal from "sweetalert2";
+import { api } from '../../../../utils/api';
+import { useRouter } from 'next/router';
+import { toast } from 'react-toastify';
+import Swal from 'sweetalert2';
 
 const PDVOrders: NextPage = () => {
   const router = useRouter();
-  
+
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
-  const [find, setFind] = useState("");
+  const [find, setFind] = useState('');
   const [orders, setOrders] = useState<any[]>([]);
   const { id } = router.query;
-  
-  const ordersQuery = api.order.getByPdvId.useQuery({ pdvId: id as string }, { suspense: false });
+
+  const ordersQuery = api.order.getByPdvId.useQuery(
+    { pdvId: id as string },
+    { suspense: false },
+  );
   const deleteOrderMutation = api.items.deleteById.useMutation();
 
   useEffect(() => {
     setOrders(ordersQuery.data ?? []);
   }, [ordersQuery.data]);
-  
+
   useEffect(() => {
-    if ( orders.length === 0) return;
+    if (orders.length === 0) return;
     setOrders(
       orders.filter(
         order =>
@@ -64,7 +68,7 @@ const PDVOrders: NextPage = () => {
     console.error(ordersQuery.error); // eslint-disable-line no-console
     return <div>An error occurred</div>;
   }
- 
+
   if (ordersQuery.isLoading) {
     return (
       <Box
@@ -83,35 +87,36 @@ const PDVOrders: NextPage = () => {
   const deleteOrderById = async (id: string) => {
     try {
       await deleteOrderMutation.mutateAsync({ id });
-      toast.success("Order excluído com sucesso.", {
-        position: "top-right",
+      toast.success('Order excluído com sucesso.', {
+        position: 'top-right',
         autoClose: 3000,
-        theme: "colored",
+        theme: 'colored',
       });
       router.reload();
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : 'An error occurred';
+      const message =
+        error instanceof Error ? error.message : 'An error occurred';
       toast.error(`Ocorreu um erro. ${message}`, {
-        position: "top-right",
+        position: 'top-right',
         autoClose: 5000,
-        theme: "colored",
+        theme: 'colored',
       });
     }
   };
-  
+
   const emptyRows =
     rowsPerPage - Math.min(rowsPerPage, orders.length - page * rowsPerPage);
 
   const handleDeleteItem = (id: string) => {
     void Swal.fire({
-      title: "Deseja excluir?",
-      text: "Essa opção não poderá ser revertida.",
-      icon: "warning",
+      title: 'Deseja excluir?',
+      text: 'Essa opção não poderá ser revertida.',
+      icon: 'warning',
       showCancelButton: true,
-      cancelButtonColor: "#3085d6",
-      confirmButtonColor: "#d33",
-      cancelButtonText: "Não",
-      confirmButtonText: "Sim",
+      cancelButtonColor: '#3085d6',
+      confirmButtonColor: '#d33',
+      cancelButtonText: 'Não',
+      confirmButtonText: 'Sim',
     }).then((result: { isConfirmed: any }) => {
       if (result.isConfirmed) {
         try {
@@ -119,7 +124,7 @@ const PDVOrders: NextPage = () => {
         } catch (error: any) {
           toast.error(error.response.data.message, {
             position: toast.POSITION.TOP_RIGHT,
-            theme: "colored",
+            theme: 'colored',
             autoClose: 5000,
           });
         }
@@ -128,20 +133,20 @@ const PDVOrders: NextPage = () => {
   };
 
   const handleEditItem = (itemid: string) => {
-    if(id && typeof id === "string"){
+    if (id && typeof id === 'string') {
       void router.push(`/pdv/${id}/item/edit/${itemid}`);
     }
   };
 
   const handleChangePage = (
     event: React.MouseEvent<HTMLButtonElement> | null,
-    newPage: number
+    newPage: number,
   ) => {
     setPage(newPage);
   };
 
   const handleChangeRowsPerPage = (
-    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     setRowsPerPage(parseInt(event.target.value));
     setPage(0);
@@ -227,10 +232,10 @@ const PDVOrders: NextPage = () => {
                           component="th"
                           scope="row"
                           sx={{
-                            width: '50%',
+                            width: '20%',
                           }}
                         >
-                          {orderOnPDV.price}
+                          R$ {orderOnPDV.price}
                         </TableCell>
                         <TableCell
                           component="th"
@@ -257,7 +262,9 @@ const PDVOrders: NextPage = () => {
                             width: '50%',
                           }}
                         >
-                          {orderOnPDV.payment_link}
+                          <Link href={orderOnPDV.payment_link} target="_blank">
+                            {orderOnPDV.payment_link}
+                          </Link>
                         </TableCell>
                         <TableCell component="th" scope="row">
                           <IconButton
@@ -273,7 +280,7 @@ const PDVOrders: NextPage = () => {
                   ))}
                   {emptyRows > 0 && (
                     <TableRow style={{ height: 43 * emptyRows }}>
-                      <TableCell colSpan={4} />
+                      <TableCell colSpan={6} />
                     </TableRow>
                   )}
                 </TableBody>
