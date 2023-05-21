@@ -4,13 +4,6 @@ import { createTRPCRouter, publicProcedure } from '../trpc';
 import axios from 'axios';
 import { env } from '../../../env.mjs';
 
-export enum OrderStatus {
-  Pending = 'pending',
-  Approved = 'approved',
-  Accredited = 'accredited',
-  Delivered = 'delivered',
-  Canceled = 'canceled',
-}
 interface MercadoPagoResponse {
   id: string;
   init_point: string;
@@ -22,23 +15,34 @@ type PaymentInfo = {
   status_detail: string;
 };
 
+const OrderStatus = {
+  Pending: 'pending',
+  Approved: 'approved',
+  Accredited: 'accredited',
+  Delivered: 'delivered',
+  Canceled: 'canceled',
+} as const;
+
+type OrderStatusEnumType = (typeof OrderStatus)[keyof typeof OrderStatus];
+
+function isOrderStatusEnumType(value: string): value is OrderStatusEnumType {
+  return Object.values(OrderStatus).includes(value as OrderStatusEnumType);
+}
+
 function mapPaymentStatusToOrderStatus(
   status: string,
   status_detail: string,
-): OrderStatus {
-  if (!(status in OrderStatus) && !(status_detail in OrderStatus)) {
+): OrderStatusEnumType {
+  if (isOrderStatusEnumType(status_detail)) {
+    return status_detail;
+  } else if (isOrderStatusEnumType(status)) {
+    return status;
+  } else {
     throw new Error(
-      `Invalid status and status_detail combination: ${status}, ${status_detail}`,
+      `Invalid status and status_detail: neither "${status}" nor "${status_detail}" is a valid OrderStatus.`,
     );
   }
-
-  if (status_detail in OrderStatus) {
-    return status_detail as OrderStatus;
-  }
-
-  return status as OrderStatus;
 }
-console.log('map', mapPaymentStatusToOrderStatus('approved', 'accredited'));
 
 export const orderSchema = z.object({
   id: z.string().uuid(),
@@ -286,7 +290,7 @@ export const ordersRouter = createTRPCRouter({
             },
           },
         );
-        console.log('Payment info', response)
+        console.log('Payment info', response);
         const paymentInfo = response.data as PaymentInfo;
 
         // Extract the external_reference and status from the paymentInfo
