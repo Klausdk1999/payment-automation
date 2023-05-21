@@ -263,14 +263,14 @@ export const ordersRouter = createTRPCRouter({
   notification: publicProcedure
     .input(
       z.object({
-        action: z.string(),
-        api_version: z.string(),
-        application_id: z.string(),
-        date_created: z.string(),
-        id: z.any(),
-        live_mode: z.any(),
-        type: z.string(),
-        user_id: z.any(),
+        action: z.string().optional(),
+        api_version: z.string().optional(),
+        application_id: z.string().optional(),
+        date_created: z.string().optional(),
+        id: z.any().optional(),
+        live_mode: z.any().optional(),
+        type: z.string().optional(),
+        user_id: z.any().optional(),
         data: z.object({
           id: z.string(),
         }),
@@ -330,6 +330,6 @@ export const ordersRouter = createTRPCRouter({
       }
 
       // Return a message indicating the action was not handled
-      return { message: `Action ${input.action} not handled` };
+      return { message: `Action ${input.action || ''} not handled` };
     }),
 });
