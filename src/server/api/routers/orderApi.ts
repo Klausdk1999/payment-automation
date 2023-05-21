@@ -4,20 +4,13 @@ import { createTRPCRouter, publicProcedure } from '../trpc';
 import axios from 'axios';
 import { env } from '../../../env.mjs';
 
-type OrderStatusEnumType =
-  | 'pending'
-  | 'approved'
-  | 'accredited'
-  | 'delivered'
-  | 'canceled';
-
-export const orderStatusEnumType = z.enum([
-  'pending',
-  'approved',
-  'accredited',
-  'delivered',
-  'canceled',
-]);
+export enum OrderStatus {
+  Pending = 'pending',
+  Approved = 'approved',
+  Accredited = 'accredited',
+  Delivered = 'delivered',
+  Canceled = 'canceled',
+}
 interface MercadoPagoResponse {
   id: string;
   init_point: string;
@@ -32,27 +25,20 @@ type PaymentInfo = {
 function mapPaymentStatusToOrderStatus(
   status: string,
   status_detail: string,
-): OrderStatusEnumType {
-  const orderStatuses = [
-    'pending',
-    'approved',
-    'accredited',
-    'delivered',
-    'canceled',
-  ];
-
-  if (orderStatuses.includes(status_detail)) {
-    return status_detail as OrderStatusEnumType;
+): OrderStatus {
+  if (!(status in OrderStatus) && !(status_detail in OrderStatus)) {
+    throw new Error(
+      `Invalid status and status_detail combination: ${status}, ${status_detail}`,
+    );
   }
 
-  if (orderStatuses.includes(status)) {
-    return status as OrderStatusEnumType;
+  if (status_detail in OrderStatus) {
+    return status_detail as OrderStatus;
   }
 
-  throw new Error(
-    `Invalid status and status_detail combination: ${status}, ${status_detail}`,
-  );
+  return status as OrderStatus;
 }
+console.log('map', mapPaymentStatusToOrderStatus('approved', 'accredited'));
 
 export const orderSchema = z.object({
   id: z.string().uuid(),
@@ -67,7 +53,7 @@ export const orderSchema = z.object({
   price: z.number(),
   payment_link: z.string(),
   payment_id: z.string(),
-  status: orderStatusEnumType,
+  status: z.nativeEnum(OrderStatus),
   pdvId: z.string().uuid(),
   createdAt: z.string(),
   updatedAt: z.string(),
