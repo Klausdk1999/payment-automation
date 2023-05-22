@@ -7,7 +7,7 @@ import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import logo from '../assets/images/logo.png';
 import Image from 'next/image';
-import CircularProgress from 'material-ui/CircularProgress';
+import CircularProgress from '@mui/material/CircularProgress';
 import Head from 'next/head';
 import Typography from '@mui/material/Typography';
 import { type NextPage } from 'next';
