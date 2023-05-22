@@ -110,10 +110,10 @@ const Editpdv: NextPage = () => {
         <Box
           sx={{
             my: 4,
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "center",
-            width: "100%",
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            width: '100%',
           }}
         >
           <ContentHeader title="Editar PDV" />
@@ -138,12 +138,9 @@ const Editpdv: NextPage = () => {
                   value={formik.values.company}
                   as={TextField}
                   error={
-                    formik.touched.company &&
-                    Boolean(formik.errors.company)
+                    formik.touched.company && Boolean(formik.errors.company)
                   }
-                  helperText={
-                    formik.touched.company && formik.errors.company
-                  }
+                  helperText={formik.touched.company && formik.errors.company}
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
                 />
@@ -154,13 +151,8 @@ const Editpdv: NextPage = () => {
                   fullWidth
                   value={formik.values.type}
                   as={Select}
-                  error={
-                    formik.touched.type &&
-                    Boolean(formik.errors.type)
-                  }
-                  helperText={
-                    formik.touched.type && formik.errors.type
-                  }
+                  error={formik.touched.type && Boolean(formik.errors.type)}
+                  helperText={formik.touched.type && formik.errors.type}
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
                 >
@@ -175,13 +167,8 @@ const Editpdv: NextPage = () => {
                   fullWidth
                   value={formik.values.login}
                   as={TextField}
-                  error={
-                    formik.touched.login &&
-                    Boolean(formik.errors.login)
-                  }
-                  helperText={
-                    formik.touched.login && formik.errors.login
-                  }
+                  error={formik.touched.login && Boolean(formik.errors.login)}
+                  helperText={formik.touched.login && formik.errors.login}
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
                 />
@@ -194,12 +181,9 @@ const Editpdv: NextPage = () => {
                   value={formik.values.password}
                   as={TextField}
                   error={
-                    formik.touched.password &&
-                    Boolean(formik.errors.password)
+                    formik.touched.password && Boolean(formik.errors.password)
                   }
-                  helperText={
-                    formik.touched.password && formik.errors.password
-                  }
+                  helperText={formik.touched.password && formik.errors.password}
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
                 />
@@ -217,20 +201,20 @@ const Editpdv: NextPage = () => {
                 <Box
                   sx={{
                     mt: 2,
-                    width: "100%",
-                    display: "flex",
-                    flexDirection: "row",
+                    width: '100%',
+                    display: 'flex',
+                    flexDirection: 'row',
                     gap: 2,
-                    alignItems: "center",
-                    justifyContent: "right",
+                    alignItems: 'center',
+                    justifyContent: 'right',
                   }}
                 >
                   <Button
                     variant="contained"
-                    color="inherit"
+                    color="secondary"
                     onClick={() => router.back()}
                     sx={{
-                      padding: "0.35rem 1rem",
+                      padding: '0.35rem 1rem',
                     }}
                   >
                     Voltar
@@ -240,7 +224,7 @@ const Editpdv: NextPage = () => {
                     color="primary"
                     type="submit"
                     sx={{
-                      padding: "0.35rem 1rem",
+                      padding: '0.35rem 1rem',
                     }}
                   >
                     Salvar

@@ -126,7 +126,9 @@ const CreateUser: NextPage = () => {
                   margin="normal"
                   fullWidth
                   as={TextField}
-                  error={formik.touched.cpf_cnpj && Boolean(formik.errors.cpf_cnpj)}
+                  error={
+                    formik.touched.cpf_cnpj && Boolean(formik.errors.cpf_cnpj)
+                  }
                   helperText={formik.touched.cpf_cnpj && formik.errors.cpf_cnpj}
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
@@ -150,22 +152,22 @@ const CreateUser: NextPage = () => {
                 <Box
                   sx={{
                     mt: 2,
-                    width: "100%",
-                    display: "flex",
-                    flexDirection: "row",
+                    width: '100%',
+                    display: 'flex',
+                    flexDirection: 'row',
                     gap: 2,
-                    alignItems: "center",
-                    justifyContent: "right",
+                    alignItems: 'center',
+                    justifyContent: 'right',
                   }}
                 >
                   <Button
                     variant="contained"
-                    color="inherit"
+                    color="secondary"
                     onClick={() => router.back()}
                     sx={{
-                      padding: "0.35rem 1rem",
+                      padding: '0.35rem 1rem',
                     }}
-                    >
+                  >
                     Voltar
                   </Button>
                   <Button
@@ -173,9 +175,9 @@ const CreateUser: NextPage = () => {
                     color="primary"
                     type="submit"
                     sx={{
-                      padding: "0.35rem 1rem",
+                      padding: '0.35rem 1rem',
                     }}
-                    >
+                  >
                     Salvar
                   </Button>
                 </Box>

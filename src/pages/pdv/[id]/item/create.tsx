@@ -105,121 +105,128 @@ const CreateItem: NextPage = () => {
 
 
   return (
-  <>
-    {id && typeof id === "string" && <ItemOrderHeader id={id} />}
-    <Container>
-      <Box
-        sx={{
-          my: 4,
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'center',
-          width: '100%',
-        }}
-      >
-        <ContentHeader title="Adicionar item" />
-        <FormikProvider value={formik}>
-          <form onSubmit={formik.handleSubmit}>
-            <Box
-              display="flex"
-              flexDirection="column"
-              alignItems="start"
-              component={Paper}
-              width="100%"
-              padding={4}
-              mt={2}
-            >
-              <Field
-                name="name"
-                type="text"
-                label="Nome do item"
-                margin="normal"
-                autoFocus
-                fullWidth
-                as={TextField}
-                error={formik.touched.name && Boolean(formik.errors.name)}
-                helperText={formik.touched.name && formik.errors.name}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                value={formik.values.name}
-              />
-              <Field
-                name="description"
-                type="text"
-                label="Descrição"
-                margin="normal"
-                fullWidth
-                as={TextField}
-                error={formik.touched.description && Boolean(formik.errors.description)}
-                helperText={formik.touched.description && formik.errors.description}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                value={formik.values.description}
-              />
-              <Field
-                name="price"
-                type="number"
-                label="Preço"
-                margin="normal"
-                fullWidth
-                as={TextField}
-                error={formik.touched.price && Boolean(formik.errors.price)}
-                helperText={formik.touched.price && formik.errors.price}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                value={formik.values.price}
-              />
-              <Field
-                name="quantity"
-                type="number"
-                label="Quantidade"
-                margin="normal"
-                fullWidth
-                as={TextField}
-                error={formik.touched.quantity && Boolean(formik.errors.quantity)}
-                helperText={formik.touched.quantity && formik.errors.quantity}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                value={formik.values.quantity}
-              />
+    <>
+      {id && typeof id === 'string' && <ItemOrderHeader id={id} />}
+      <Container>
+        <Box
+          sx={{
+            my: 4,
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            width: '100%',
+          }}
+        >
+          <ContentHeader title="Adicionar item" />
+          <FormikProvider value={formik}>
+            <form onSubmit={formik.handleSubmit}>
               <Box
-                sx={{
-                  mt: 2,
-                  width: "100%",
-                  display: "flex",
-                  flexDirection: "row",
-                  gap: 2,
-                  alignItems: "center",
-                  justifyContent: "right",
-                }}
+                display="flex"
+                flexDirection="column"
+                alignItems="start"
+                component={Paper}
+                width="100%"
+                padding={4}
+                mt={2}
               >
-                <Button
-                  variant="contained"
-                  color="inherit"
-                  onClick={() => router.back()}
+                <Field
+                  name="name"
+                  type="text"
+                  label="Nome do item"
+                  margin="normal"
+                  autoFocus
+                  fullWidth
+                  as={TextField}
+                  error={formik.touched.name && Boolean(formik.errors.name)}
+                  helperText={formik.touched.name && formik.errors.name}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  value={formik.values.name}
+                />
+                <Field
+                  name="description"
+                  type="text"
+                  label="Descrição"
+                  margin="normal"
+                  fullWidth
+                  as={TextField}
+                  error={
+                    formik.touched.description &&
+                    Boolean(formik.errors.description)
+                  }
+                  helperText={
+                    formik.touched.description && formik.errors.description
+                  }
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  value={formik.values.description}
+                />
+                <Field
+                  name="price"
+                  type="number"
+                  label="Preço"
+                  margin="normal"
+                  fullWidth
+                  as={TextField}
+                  error={formik.touched.price && Boolean(formik.errors.price)}
+                  helperText={formik.touched.price && formik.errors.price}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  value={formik.values.price}
+                />
+                <Field
+                  name="quantity"
+                  type="number"
+                  label="Quantidade"
+                  margin="normal"
+                  fullWidth
+                  as={TextField}
+                  error={
+                    formik.touched.quantity && Boolean(formik.errors.quantity)
+                  }
+                  helperText={formik.touched.quantity && formik.errors.quantity}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  value={formik.values.quantity}
+                />
+                <Box
                   sx={{
-                    padding: "0.35rem 1rem",
+                    mt: 2,
+                    width: '100%',
+                    display: 'flex',
+                    flexDirection: 'row',
+                    gap: 2,
+                    alignItems: 'center',
+                    justifyContent: 'right',
                   }}
+                >
+                  <Button
+                    variant="contained"
+                    color="secondary"
+                    onClick={() => router.back()}
+                    sx={{
+                      padding: '0.35rem 1rem',
+                    }}
                   >
-                  Voltar
-                </Button>
-                <Button
-                  variant="contained"
-                  color="primary"
-                  type="submit"
-                  sx={{
-                    padding: "0.35rem 1rem",
-                  }}
+                    Voltar
+                  </Button>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    type="submit"
+                    sx={{
+                      padding: '0.35rem 1rem',
+                    }}
                   >
-                  Salvar
-                </Button>
+                    Salvar
+                  </Button>
+                </Box>
               </Box>
-            </Box>
-          </form>
-        </FormikProvider>
-      </Box>
-    </Container>
-  </>
+            </form>
+          </FormikProvider>
+        </Box>
+      </Container>
+    </>
   );
 
 };

@@ -120,9 +120,9 @@ const PDV: NextPage = () => {
         <Box
           sx={{
             my: 4,
-            display: "flex",
-            flexDirection: "column",
-            height: "100%",
+            display: 'flex',
+            flexDirection: 'column',
+            height: '100%',
           }}
         >
           <Box>
@@ -132,8 +132,8 @@ const PDV: NextPage = () => {
             component={Paper}
             sx={{
               mt: 2,
-              bgcolor: "#fafafa",
-              borderRadius: "5px 5px 0 0",
+              backgroundColor: theme => theme.palette.background.paper,
+              borderRadius: '5px 5px 0 0',
             }}
           >
             <Table size="small" aria-label="lista de pdvs">
@@ -150,7 +150,7 @@ const PDV: NextPage = () => {
                 {(rowsPerPage > 0
                   ? filteredPDV.slice(
                       page * rowsPerPage,
-                      page * rowsPerPage + rowsPerPage
+                      page * rowsPerPage + rowsPerPage,
                     )
                   : filteredPDV
                 ).map((PDVData: IPDVData) => (
@@ -159,24 +159,22 @@ const PDV: NextPage = () => {
                       <IconButton
                         aria-label="Editar"
                         size="small"
-                        onClick={() =>
-                          handleEditPDV(PDVData?.id)
-                        }
+                        onClick={() => handleEditPDV(PDVData?.id)}
                       >
                         <Edit />
                       </IconButton>
                     </TableCell>
-                    <TableCell component="th" scope="row"  align="left">
+                    <TableCell component="th" scope="row" align="left">
                       {PDVData.company}
                     </TableCell>
-                    <TableCell component="th" scope="row"  align="left">
+                    <TableCell component="th" scope="row" align="left">
                       {PDVData.login}
                     </TableCell>
-                    <TableCell component="th" scope="row"  align="left">
+                    <TableCell component="th" scope="row" align="left">
                       {PDVData.type}
                     </TableCell>
                     <TableCell component="th" scope="row" align="left">
-                      {PDVData.isActive ? "Sim" : "Não"}
+                      {PDVData.isActive ? 'Sim' : 'Não'}
                     </TableCell>
                   </TableRow>
                 ))}
@@ -189,7 +187,7 @@ const PDV: NextPage = () => {
             </Table>
           </TableContainer>
           <TablePagination
-            rowsPerPageOptions={[5, 10, { label: "Todos", value: -1 }]}
+            rowsPerPageOptions={[5, 10, { label: 'Todos', value: -1 }]}
             colSpan={10}
             component={Paper}
             count={filteredPDV.length}
@@ -201,9 +199,9 @@ const PDV: NextPage = () => {
             sx={{
               margin: 0,
               padding: 0,
-              backgroundColor: "#fafafa",
-              borderTopLeftRadius: "0",
-              borderTopRightRadius: "0",
+              backgroundColor: theme => theme.palette.background.paper,
+              borderTopLeftRadius: '0',
+              borderTopRightRadius: '0',
             }}
             size="small"
           />

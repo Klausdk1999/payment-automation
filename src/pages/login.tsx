@@ -6,7 +6,7 @@ import TextField from '@mui/material/TextField';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
-import logo from '../assets/images/logo.jpeg';
+import logo from '../assets/images/logo.png';
 import Image from 'next/image';
 import Head from 'next/head';
 import { type NextPage } from 'next';
@@ -77,6 +77,9 @@ const Home: NextPage = () => {
             height: '200px',
           }}
         />
+        <Typography component="h1" variant="h5">
+          Login de Administrador QuickPay
+        </Typography>
         <FormikProvider value={formik}>
           <form noValidate onSubmit={formik.handleSubmit}>
             <Box sx={{ mt: 1 }}>
@@ -125,7 +128,11 @@ const Home: NextPage = () => {
                     height: '100%',
                   }}
                 >
-                  <Link href="/access">Acesso para o painel de loja</Link>
+                  <Link href="/access">
+                    <Typography color="primary">
+                      Acesso para o painel de loja
+                    </Typography>
+                  </Link>
                 </div>
               </div>
             </Box>

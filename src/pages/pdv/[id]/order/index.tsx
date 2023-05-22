@@ -113,7 +113,7 @@ const PDVOrders: NextPage = () => {
       text: 'Essa opção não poderá ser revertida.',
       icon: 'warning',
       showCancelButton: true,
-      cancelButtonColor: '#3085d6',
+      cancelButtonColor: '#00FF43',
       confirmButtonColor: '#d33',
       cancelButtonText: 'Não',
       confirmButtonText: 'Sim',
@@ -195,7 +195,6 @@ const PDVOrders: NextPage = () => {
               component={Paper}
               sx={{
                 mt: 2,
-                bgcolor: '#fafafa',
               }}
             >
               <Table size="small" aria-label="lista de pedidos">
@@ -292,7 +291,7 @@ const PDVOrders: NextPage = () => {
                         10,
                         { label: 'Todos', value: -1 },
                       ]}
-                      colSpan={4}
+                      colSpan={6}
                       count={orders.length}
                       rowsPerPage={rowsPerPage}
                       page={page}

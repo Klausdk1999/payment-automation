@@ -5,9 +5,10 @@ import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
-import logo from '../assets/images/logo.jpeg';
+import logo from '../assets/images/logo.png';
 import Image from 'next/image';
 import Head from 'next/head';
+import Typography from '@mui/material/Typography';
 import { type NextPage } from 'next';
 import { api } from '../utils/api';
 import { useRouter } from 'next/router';
@@ -76,6 +77,9 @@ const Home: NextPage = () => {
             height: '200px',
           }}
         />
+        <Typography component="h1" variant="h5">
+          Login para Controle de Loja
+        </Typography>
         <FormikProvider value={formik}>
           <form noValidate onSubmit={formik.handleSubmit}>
             <Box sx={{ mt: 1 }}>
@@ -124,7 +128,11 @@ const Home: NextPage = () => {
                     height: '100%',
                   }}
                 >
-                  <Link href="/login">Login para funcionários QuickPay</Link>
+                  <Link href="/login">
+                    <Typography color="primary">
+                      Login para funcionários QuickPay
+                    </Typography>
+                  </Link>
                 </div>
               </div>
             </Box>

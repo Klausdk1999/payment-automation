@@ -125,7 +125,7 @@ const Store: NextPage = () => {
   };
 
   return (
-    <Box sx={{ padding: 2, marginTop: -12, bgcolor: '#f3d8a9' }}>
+    <Box sx={{ padding: 2, marginTop: -12 }}>
       <PaymentDialog
         open={dialogOpen}
         text="Você será redirecionado para a página de pagamento"

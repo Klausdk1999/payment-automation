@@ -47,7 +47,7 @@ const OrderSummaryCard: React.FC<OrderSummaryCardProps> = ({
       </Typography>
       <Button
         variant="contained"
-        style={{ color: 'white', marginTop: 16 }}
+        style={{ marginTop: 16 }}
         onClick={() => {
           finalizePurchase().catch(error => {
             console.error('Error finalizing purchase:', error);

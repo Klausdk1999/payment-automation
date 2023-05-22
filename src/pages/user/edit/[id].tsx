@@ -126,10 +126,10 @@ const EditUser: NextPage = () => {
         <Box
           sx={{
             my: 4,
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "center",
-            width: "100%",
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            width: '100%',
           }}
         >
           <ContentHeader title="Editar usuário" />
@@ -177,7 +177,9 @@ const EditUser: NextPage = () => {
                   margin="normal"
                   value={formik.values.cpf_cnpj}
                   onChange={formik.handleChange}
-                  error={formik.touched.cpf_cnpj && Boolean(formik.errors.cpf_cnpj)}
+                  error={
+                    formik.touched.cpf_cnpj && Boolean(formik.errors.cpf_cnpj)
+                  }
                   helperText={formik.touched.cpf_cnpj && formik.errors.cpf_cnpj}
                   fullWidth
                 />
@@ -189,9 +191,9 @@ const EditUser: NextPage = () => {
                   autoComplete="new_password"
                   margin="normal"
                   value={formik.values.new_password}
-                  onChange={(e) => {
+                  onChange={e => {
                     formik.handleChange(e);
-                    if (e.target.value === ''){
+                    if (e.target.value === '') {
                       void formik.setFieldValue('confirm_password', '');
                     }
                   }}
@@ -219,7 +221,8 @@ const EditUser: NextPage = () => {
                     Boolean(formik.errors.confirm_password)
                   }
                   helperText={
-                    formik.touched.confirm_password && formik.errors.confirm_password
+                    formik.touched.confirm_password &&
+                    formik.errors.confirm_password
                   }
                   fullWidth
                   disabled={!formik.values.new_password}
@@ -227,20 +230,20 @@ const EditUser: NextPage = () => {
                 <Box
                   sx={{
                     mt: 2,
-                    width: "100%",
-                    display: "flex",
-                    flexDirection: "row",
+                    width: '100%',
+                    display: 'flex',
+                    flexDirection: 'row',
                     gap: 2,
-                    alignItems: "center",
-                    justifyContent: "right",
+                    alignItems: 'center',
+                    justifyContent: 'right',
                   }}
                 >
                   <Button
                     variant="contained"
-                    color="inherit"
+                    color="secondary"
                     onClick={() => router.back()}
                     sx={{
-                      padding: "0.35rem 1rem",
+                      padding: '0.35rem 1rem',
                     }}
                   >
                     Voltar
@@ -250,7 +253,7 @@ const EditUser: NextPage = () => {
                     color="primary"
                     type="submit"
                     sx={{
-                      padding: "0.35rem 1rem",
+                      padding: '0.35rem 1rem',
                     }}
                   >
                     Salvar

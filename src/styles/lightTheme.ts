@@ -1,6 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { createTheme } from '@mui/material/styles';
 import { red } from '@mui/material/colors';
 import { roboto } from './roboto';
@@ -9,25 +6,35 @@ export const lightTheme = createTheme({
   palette: {
     mode: 'light',
     primary: {
-      main: '#fea10d',
-      dark: '#050b26',
-      contrastText: '#eaeeed',
+      main: '#00FF43',
+      dark: '#b9b9b9',
+      contrastText: '#000000',
     },
     secondary: {
       main: '#7c7f8e',
     },
     error: {
-      main: red.A400,
+      main: '#00FF43',
     },
     background: {
-      default: "#f9f9f8",
+      default: '#202020',
+      paper: '#275c37',
     },
     text: {
-      primary: '#212121',
-      secondary: '#676767',
+      primary: '#ffffff',
+      secondary: '#b9b9b9',
     },
   },
   typography: {
     fontFamily: roboto.style.fontFamily,
+  },
+  components: {
+    MuiInput: {
+      styleOverrides: {
+        root: {
+          backgroundColor: '#d9d9d9', // Light grey color
+        },
+      },
+    },
   },
 });

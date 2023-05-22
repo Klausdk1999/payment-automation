@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import * as React from 'react';
-import logo from "../../assets/images/logo.jpeg";
+import logo from '../../../public/favicon.png';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
@@ -69,9 +69,15 @@ export const ItemOrderHeader: React.FC<ItemOrderHeaderProps> = ({ id }) => {
 
   return (
     <AppBar>
-      <Container maxWidth="xl" sx={{ backgroundColor: '#fafafa' }}>
+      <Container
+        maxWidth="xl"
+        sx={{
+          backgroundColor: theme => theme.palette.primary.main,
+          color: theme => theme.palette.primary.contrastText,
+        }}
+      >
         <Toolbar disableGutters>
-          <Box 
+          <Box
             sx={{
               mr: 2,
               display: { xs: 'none', md: 'flex' },
@@ -84,7 +90,7 @@ export const ItemOrderHeader: React.FC<ItemOrderHeaderProps> = ({ id }) => {
             <Image
               src={logo}
               alt="Logo da empresa QuickPay"
-              width="150"
+              width="50"
               height="50"
               priority
             />
@@ -99,7 +105,9 @@ export const ItemOrderHeader: React.FC<ItemOrderHeaderProps> = ({ id }) => {
               onClick={handleOpenNavMenu}
               color="inherit"
             >
-              <MenuIcon sx={{ color: 'text.secondary' }} />
+              <MenuIcon
+                sx={{ color: theme => theme.palette.primary.contrastText }}
+              />
             </IconButton>
             <Menu
               id="menu-appbar"
@@ -119,7 +127,7 @@ export const ItemOrderHeader: React.FC<ItemOrderHeaderProps> = ({ id }) => {
                 display: { xs: 'block', md: 'none' },
               }}
             >
-              {pages.map((page) => (
+              {pages.map(page => (
                 <MenuItem key={page} onClick={() => handleMenuClick(page)}>
                   <Typography textAlign="center">{page}</Typography>
                 </MenuItem>
@@ -131,7 +139,7 @@ export const ItemOrderHeader: React.FC<ItemOrderHeaderProps> = ({ id }) => {
               mr: 2,
               display: { xs: 'flex', md: 'none' },
               flexGrow: 1,
-              color: 'inherit',
+              color: theme => theme.palette.primary.contrastText,
               textDecoration: 'none',
             }}
           >
@@ -144,17 +152,17 @@ export const ItemOrderHeader: React.FC<ItemOrderHeaderProps> = ({ id }) => {
             />
           </Box>
           <Box
-            sx={{ 
-              flexGrow: 1, 
+            sx={{
+              flexGrow: 1,
               display: { xs: 'none', md: 'flex' },
               paddingTop: 1,
             }}
           >
-            {pages.map((page) => (
+            {pages.map(page => (
               <Button
                 key={page}
                 onClick={() => handleMenuClick(page)}
-                sx={{ color: 'text.secondary', display: 'block' }}
+                sx={{ color: 'primary.contrastText', display: 'block' }}
               >
                 {page}
               </Button>
@@ -164,7 +172,7 @@ export const ItemOrderHeader: React.FC<ItemOrderHeaderProps> = ({ id }) => {
           <Box sx={{ flexGrow: 0 }}>
             <Tooltip title="Sair">
               <IconButton size="large" onClick={() => handleLogOut()}>
-                <PowerSettingsNewRoundedIcon sx={{ color: 'text.secondary' }}/>
+                <PowerSettingsNewRoundedIcon sx={{ color: 'primary.contrastText' }} />
               </IconButton>
             </Tooltip>
           </Box>

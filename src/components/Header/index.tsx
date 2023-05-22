@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import * as React from 'react';
-import logo from "../../assets/images/logo.jpeg";
+import favicon from '../../../public/favicon.png';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
@@ -28,15 +28,17 @@ export function Header() {
   const logout = api.auth.logout.useMutation({
     onSuccess: () => router.push('/'),
     onError: () => {
-      toast.error("Ocorreu um erro", {
-        position: "top-right",
+      toast.error('Ocorreu um erro', {
+        position: 'top-right',
         autoClose: 5000,
-        theme: "colored",
+        theme: 'colored',
       });
     },
   });
 
-  const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null);
+  const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(
+    null,
+  );
 
   const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorElNav(event.currentTarget);
@@ -45,13 +47,13 @@ export function Header() {
   const handleCloseNavMenu = () => {
     setAnchorElNav(null);
   };
-  
+
   const handleMenuClick = (page: string) => {
     handleCloseNavMenu();
 
     if (page === 'PDVs') {
       void router.push('/pdv');
-    } 
+    }
     if (page === 'Usuários') {
       void router.push('/user');
     }
@@ -59,16 +61,22 @@ export function Header() {
       void router.push('/notificationInfo');
     }
   };
-  
+
   const handleLogOut = () => {
     logout.mutate({});
   };
 
   return (
-    <AppBar sx={{ backgroundColor: '#fafafa' }}>
-      <Container maxWidth="xl" sx={{ backgroundColor: '#fafafa' }}>
+    <AppBar>
+      <Container
+        maxWidth="xl"
+        sx={{
+          backgroundColor: theme => theme.palette.primary.main,
+          color: theme => theme.palette.primary.contrastText,
+        }}
+      >
         <Toolbar disableGutters>
-          <Box 
+          <Box
             sx={{
               mr: 2,
               display: { xs: 'none', md: 'flex' },
@@ -79,9 +87,9 @@ export function Header() {
             }}
           >
             <Image
-              src={logo}
+              src={favicon}
               alt="Logo da empresa QuickPay"
-              width="150"
+              width="50"
               height="50"
               priority
             />
@@ -96,7 +104,7 @@ export function Header() {
               onClick={handleOpenNavMenu}
               color="inherit"
             >
-              <MenuIcon sx={{ color: 'text.secondary' }} />
+              <MenuIcon sx={{ color: 'primary.contrastText' }} />
             </IconButton>
             <Menu
               id="menu-appbar"
@@ -116,7 +124,7 @@ export function Header() {
                 display: { xs: 'block', md: 'none' },
               }}
             >
-              {pages.map((page) => (
+              {pages.map(page => (
                 <MenuItem key={page} onClick={() => handleMenuClick(page)}>
                   <Typography textAlign="center">{page}</Typography>
                 </MenuItem>
@@ -133,7 +141,7 @@ export function Header() {
             }}
           >
             <Image
-              src={logo}
+              src={favicon}
               alt="Logo da empresa QuickPay"
               width="150"
               height="50"
@@ -141,17 +149,17 @@ export function Header() {
             />
           </Box>
           <Box
-            sx={{ 
-              flexGrow: 1, 
+            sx={{
+              flexGrow: 1,
               display: { xs: 'none', md: 'flex' },
               paddingTop: 1,
             }}
           >
-            {pages.map((page) => (
+            {pages.map(page => (
               <Button
                 key={page}
                 onClick={() => handleMenuClick(page)}
-                sx={{ color: 'text.secondary', display: 'block' }}
+                sx={{ color: 'primary.contrastText', display: 'block' }}
               >
                 {page}
               </Button>
@@ -161,7 +169,9 @@ export function Header() {
           <Box sx={{ flexGrow: 0 }}>
             <Tooltip title="Sair">
               <IconButton size="large" onClick={() => handleLogOut()}>
-                <PowerSettingsNewRoundedIcon sx={{ color: 'text.secondary' }}/>
+                <PowerSettingsNewRoundedIcon
+                  sx={{ color: 'primary.contrastText' }}
+                />
               </IconButton>
             </Tooltip>
           </Box>

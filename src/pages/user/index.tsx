@@ -114,19 +114,19 @@ const User: NextPage = () => {
   }, [findName]);
 
   const handleAddUser = () => {
-    void router.push("/users/create");
+    void router.push("/user/create");
   };
 
   const handleDeleteUser = (id: string) => {
     void Swal.fire({
-      title: "Deseja excluir?",
-      text: "Essa opção não poderá ser revertida.",
-      icon: "warning",
+      title: 'Deseja excluir?',
+      text: 'Essa opção não poderá ser revertida.',
+      icon: 'warning',
       showCancelButton: true,
-      cancelButtonColor: "#3085d6",
-      confirmButtonColor: "#d33",
-      cancelButtonText: "Não",
-      confirmButtonText: "Sim",
+      cancelButtonColor: '#00FF43',
+      confirmButtonColor: '#d33',
+      cancelButtonText: 'Não',
+      confirmButtonText: 'Sim',
     }).then((result: { isConfirmed: any }) => {
       if (result.isConfirmed) {
         try {
@@ -135,7 +135,7 @@ const User: NextPage = () => {
         } catch (error: any) {
           toast.error(error.response.data.message, {
             position: toast.POSITION.TOP_RIGHT,
-            theme: "colored",
+            theme: 'colored',
             autoClose: 5000,
           });
         }
@@ -144,7 +144,7 @@ const User: NextPage = () => {
   };
 
   const handleEditUser = (id: string) => {
-    void router.push(`/users/edit/${id}`);
+    void router.push(`/user/edit/${id}`);
   };
 
   const handleChangePage = (
@@ -170,8 +170,6 @@ const User: NextPage = () => {
             my: 4,
             display: "flex",
             flexDirection: "column",
-            // justifyContent: 'center',
-            // alignItems: 'center',
             height: "100%",
           }}
         >
@@ -202,7 +200,6 @@ const User: NextPage = () => {
             component={Paper}
             sx={{
               mt: 2,
-              bgcolor: "#fafafa",
             }}
           >
             <Table size="small" aria-label="lista de usuários">

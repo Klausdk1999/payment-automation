@@ -198,7 +198,7 @@ const CreatePDV: NextPage = () => {
                 >
                   <Button
                     variant="contained"
-                    color="inherit"
+                    color="secondary"
                     onClick={() => router.back()}
                     sx={{
                       padding: "0.35rem 1rem",

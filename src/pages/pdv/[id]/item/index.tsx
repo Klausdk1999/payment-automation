@@ -196,7 +196,6 @@ const PDVItems: NextPage = () => {
             component={Paper}
             sx={{
               mt: 2,
-              bgcolor: "#fafafa",
             }}
           >
             <Table size="small" aria-label="lista de items">
@@ -289,7 +288,7 @@ const PDVItems: NextPage = () => {
                 <TableRow>
                   <TablePagination
                     rowsPerPageOptions={[5, 10, { label: "Todos", value: -1 }]}
-                    colSpan={4}
+                    colSpan={6}
                     count={items.length}
                     rowsPerPage={rowsPerPage}
                     page={page}
