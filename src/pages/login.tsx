@@ -6,6 +6,7 @@ import TextField from '@mui/material/TextField';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
+import CircularProgress from '@mui/material/CircularProgress';
 import logo from '../assets/images/logo.png';
 import Image from 'next/image';
 import Head from 'next/head';
@@ -117,8 +118,9 @@ const Home: NextPage = () => {
                   fullWidth
                   variant="contained"
                   sx={{ mt: 3, mb: 2 }}
+                  disabled={login.isLoading} // disable button when loading
                 >
-                  Entrar
+                  {login.isLoading ? <CircularProgress/> : 'Entrar'} 
                 </Button>
                 <div
                   style={{

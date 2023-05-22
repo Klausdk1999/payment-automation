@@ -9,8 +9,6 @@ import React from 'react';
 import ItemCard from '../../../components/ItemCard';
 import OrderSummaryCard from '../../../components/OrderSummary';
 import {
-  Paper,
-  TextField,
   Box,
   Typography,
   Grid,
