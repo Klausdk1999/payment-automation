@@ -179,6 +179,41 @@ export const ordersRouter = createTRPCRouter({
       return updatedOrder;
     }),
 
+  update: publicProcedure
+    .input(
+      z.object({
+        id: z.string().uuid(),
+        status: z.nativeEnum(OrderStatus),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const currentOrder = await ctx.prisma.order.findUnique({
+        where: { id: input.id },
+      });
+
+      if (!currentOrder) throw new Error(`Order with ID ${input.id} not found`);
+
+      if (
+        (['accredited', 'approved'].includes(currentOrder.status) &&
+          ['delivered'].includes(input.status)) ||
+        (['pending'].includes(currentOrder.status) &&
+          ['cancelled'].includes(input.status))
+      ) {
+        const updatedOrder = await ctx.prisma.order.update({
+          where: { id: input.id },
+          data: {
+            status: input.status,
+          },
+        });
+
+        return updatedOrder;
+      } else {
+        throw new Error(
+          `Order status can only be updated to "delivered" or "cancelled" if the current status is "pending", "accredited", or "approved"`,
+        );
+      }
+    }),
+
   getById: publicProcedure
     .input(z.object({ id: z.string().uuid() }))
     .query(({ ctx, input }) => {

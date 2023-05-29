@@ -4,14 +4,12 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import React, { useState, useEffect } from 'react';
-import { TRPCClientError } from '@trpc/client';
 import { type NextPage } from 'next';
 import Container from '@mui/material/Container';
 import TextField from '@mui/material/TextField';
 import Box from '@mui/material/Box';
 import { ItemOrderHeader } from '../../../../components/ItemOrderHeader';
-import { ContentHeader } from '../../../../components/ContentHeader';
-import { Edit, Delete } from '@mui/icons-material';
+import { CheckBox, Cancel } from '@mui/icons-material';
 import Link from 'next/link';
 import {
   TableContainer,
@@ -31,7 +29,6 @@ import {
 import { api } from '../../../../utils/api';
 import { useRouter } from 'next/router';
 import { toast } from 'react-toastify';
-import Swal from 'sweetalert2';
 
 const PDVOrders: NextPage = () => {
   const router = useRouter();
@@ -46,7 +43,7 @@ const PDVOrders: NextPage = () => {
     { pdvId: id as string },
     { suspense: false },
   );
-  const deleteOrderMutation = api.items.deleteById.useMutation();
+  const updateOrderMutation = api.order.update.useMutation();
 
   useEffect(() => {
     setOrders(ordersQuery.data ?? []);
@@ -84,14 +81,27 @@ const PDVOrders: NextPage = () => {
     );
   }
 
-  const deleteOrderById = async (id: string) => {
-    try {
-      await deleteOrderMutation.mutateAsync({ id });
-      toast.success('Order excluído com sucesso.', {
+  const updateOrderStatus = async (
+    id: string,
+    status: 'pending' | 'approved' | 'accredited' | 'delivered' | 'canceled',
+  ) => {
+    const updateOrderPromise = updateOrderMutation.mutateAsync({ id, status });
+    void toast.promise(
+      updateOrderPromise,
+      {
+        pending: 'Updating order...',
+        success: 'Pedido finalizado com sucesso.',
+        error: 'Ocorreu um erro.',
+      },
+      {
         position: 'top-right',
         autoClose: 3000,
         theme: 'colored',
-      });
+      },
+    );
+
+    try {
+      await updateOrderPromise;
       router.reload();
     } catch (error: unknown) {
       const message =
@@ -106,37 +116,6 @@ const PDVOrders: NextPage = () => {
 
   const emptyRows =
     rowsPerPage - Math.min(rowsPerPage, orders.length - page * rowsPerPage);
-
-  const handleDeleteItem = (id: string) => {
-    void Swal.fire({
-      title: 'Deseja excluir?',
-      text: 'Essa opção não poderá ser revertida.',
-      icon: 'warning',
-      showCancelButton: true,
-      cancelButtonColor: '#00FF43',
-      confirmButtonColor: '#d33',
-      cancelButtonText: 'Não',
-      confirmButtonText: 'Sim',
-    }).then((result: { isConfirmed: any }) => {
-      if (result.isConfirmed) {
-        try {
-          void deleteOrderById(id);
-        } catch (error: any) {
-          toast.error(error.response.data.message, {
-            position: toast.POSITION.TOP_RIGHT,
-            theme: 'colored',
-            autoClose: 5000,
-          });
-        }
-      }
-    });
-  };
-
-  const handleEditItem = (itemid: string) => {
-    if (id && typeof id === 'string') {
-      void router.push(`/pdv/${id}/item/edit/${itemid}`);
-    }
-  };
 
   const handleChangePage = (
     event: React.MouseEvent<HTMLButtonElement> | null,
@@ -163,8 +142,6 @@ const PDVOrders: NextPage = () => {
               my: 4,
               display: 'flex',
               flexDirection: 'column',
-              // justifyContent: 'center',
-              // alignItems: 'center',
               height: '100%',
             }}
           >
@@ -200,7 +177,7 @@ const PDVOrders: NextPage = () => {
               <Table size="small" aria-label="lista de pedidos">
                 <TableHead>
                   <TableRow>
-                    <TableCell align="center">Editar</TableCell>
+                    <TableCell align="center">Cancelar</TableCell>
                     <TableCell align="left">Preço total</TableCell>
                     <TableCell align="left">ID</TableCell>
                     <TableCell align="left">Status</TableCell>
@@ -220,11 +197,13 @@ const PDVOrders: NextPage = () => {
                       <TableRow key={orderOnPDV.id}>
                         <TableCell component="th" scope="row">
                           <IconButton
-                            aria-label="Editar"
+                            aria-label="Cancel"
                             size="small"
-                            onClick={() => handleEditItem(orderOnPDV.id)}
+                            onClick={() =>
+                              void updateOrderStatus(orderOnPDV.id, 'canceled')
+                            }
                           >
-                            <Edit />
+                            <Cancel />
                           </IconButton>
                         </TableCell>
                         <TableCell
@@ -267,11 +246,13 @@ const PDVOrders: NextPage = () => {
                         </TableCell>
                         <TableCell component="th" scope="row">
                           <IconButton
-                            aria-label="Deletar"
+                            aria-label="CheckBox"
                             size="small"
-                            onClick={() => handleDeleteItem(orderOnPDV.id)}
+                            onClick={() =>
+                              void updateOrderStatus(orderOnPDV.id, 'delivered')
+                            }
                           >
-                            <Delete />
+                            <CheckBox />
                           </IconButton>
                         </TableCell>
                       </TableRow>
