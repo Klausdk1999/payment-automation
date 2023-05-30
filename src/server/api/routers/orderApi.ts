@@ -194,10 +194,8 @@ export const ordersRouter = createTRPCRouter({
       if (!currentOrder) throw new Error(`Order with ID ${input.id} not found`);
 
       if (
-        (['accredited', 'approved'].includes(currentOrder.status) &&
-          ['delivered'].includes(input.status)) ||
-        (['pending'].includes(currentOrder.status) &&
-          ['cancelled'].includes(input.status))
+        ['accredited', 'approved'].includes(currentOrder.status) &&
+        'delivered' === input.status ||(currentOrder.status === 'pending' && input.status === 'canceled')
       ) {
         const updatedOrder = await ctx.prisma.order.update({
           where: { id: input.id },
@@ -207,9 +205,22 @@ export const ordersRouter = createTRPCRouter({
         });
 
         return updatedOrder;
+      } else if (
+        ['accredited', 'approved'].includes(currentOrder.status) &&
+        input.status !== 'delivered'
+      ) {
+        throw new Error(
+          `Order status can only be updated to "delivered" if the current status is "accredited" or "approved"`,
+        );
+      } else if (
+        currentOrder.status === 'pending' && input.status !== 'canceled'
+      ) {
+        throw new Error(
+          `Order status can only be updated to "canceled" if the current status is "pending"`,
+        );
       } else {
         throw new Error(
-          `Order status can only be updated to "delivered" or "cancelled" if the current status is "pending", "accredited", or "approved"`,
+          `Order status can only be updated to "delivered" or "canceled" if the current status is "pending", "accredited", or "approved"`,
         );
       }
     }),
