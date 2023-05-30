@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import * as React from 'react';
-import favicon from '../../../public/favicon.png';
+import darklogo from '../../assets/images/darklogo.png';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
@@ -87,7 +87,7 @@ export function Header() {
             }}
           >
             <Image
-              src={favicon}
+              src={darklogo}
               alt="Logo da empresa QuickPay"
               width="50"
               height="50"
@@ -141,9 +141,9 @@ export function Header() {
             }}
           >
             <Image
-              src={favicon}
+              src={darklogo}
               alt="Logo da empresa QuickPay"
-              width="150"
+              width="50"
               height="50"
               priority
             />

@@ -1,28 +1,27 @@
 import { createTheme } from '@mui/material/styles';
-import { red } from '@mui/material/colors';
 import { roboto } from './roboto';
 
 export const lightTheme = createTheme({
   palette: {
     mode: 'light',
     primary: {
-      main: '#00FF43',
-      dark: '#b9b9b9',
-      contrastText: '#000000',
+      main: '#648A5B',
+      dark: '#4A5E45',
+      contrastText: '#D1E3CD',
     },
     secondary: {
-      main: '#7c7f8e',
+      main: '#2A3327',
     },
     error: {
-      main: '#00FF43',
+      main: '#B30200',
     },
     background: {
-      default: '#202020',
-      paper: '#275c37',
+      default: '#D1E3CD',
+      paper: '#ffffff',
     },
     text: {
-      primary: '#ffffff',
-      secondary: '#b9b9b9',
+      primary: '#214347',
+      secondary: '#2A3327',
     },
   },
   typography: {

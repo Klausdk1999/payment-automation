@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import * as React from 'react';
-import logo from '../../../public/favicon.png';
+import darklogo from '../../assets/images/darklogo.png';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
@@ -88,7 +88,7 @@ export const ItemOrderHeader: React.FC<ItemOrderHeaderProps> = ({ id }) => {
             }}
           >
             <Image
-              src={logo}
+              src={darklogo}
               alt="Logo da empresa QuickPay"
               width="50"
               height="50"
@@ -144,9 +144,9 @@ export const ItemOrderHeader: React.FC<ItemOrderHeaderProps> = ({ id }) => {
             }}
           >
             <Image
-              src={logo}
+              src={darklogo}
               alt="Logo da empresa QuickPay"
-              width="150"
+              width="50"
               height="50"
               priority
             />
@@ -172,7 +172,9 @@ export const ItemOrderHeader: React.FC<ItemOrderHeaderProps> = ({ id }) => {
           <Box sx={{ flexGrow: 0 }}>
             <Tooltip title="Sair">
               <IconButton size="large" onClick={() => handleLogOut()}>
-                <PowerSettingsNewRoundedIcon sx={{ color: 'primary.contrastText' }} />
+                <PowerSettingsNewRoundedIcon
+                  sx={{ color: 'primary.contrastText' }}
+                />
               </IconButton>
             </Tooltip>
           </Box>
