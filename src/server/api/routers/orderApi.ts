@@ -375,7 +375,7 @@ export const ordersRouter = createTRPCRouter({
         ) {
           const wsResponse = await axios.post(
             `${env.WEB_SOCKET_URL}/post`,
-            { message: 'Payment received', id: pdv.id },
+            { message: `one`, id: pdv.id },
             {
               headers: {
                 'http-access-key': env.HTTP_ACCESS_KEY,
