@@ -15,6 +15,10 @@ type PaymentInfo = {
   status_detail: string;
 };
 
+type wsInfo = {
+  status: string;
+};
+
 const OrderStatus = {
   Pending: 'pending',
   Approved: 'approved',
@@ -141,8 +145,8 @@ export const ordersRouter = createTRPCRouter({
           binary_mode: true,
           items: apiItems,
           back_urls: {
-            success: `${env.APP_URL}/pdv/${order.pdv.id}/success`,
-            failure: `${env.APP_URL}/pdv/${order.pdv.id}/failure`,
+            success: `${env.APP_URL}/pdv/${order.pdv.id}`,
+            failure: `${env.APP_URL}/pdv/${order.pdv.id}`,
           },
           auto_return: 'approved',
         },
@@ -194,8 +198,9 @@ export const ordersRouter = createTRPCRouter({
       if (!currentOrder) throw new Error(`Order with ID ${input.id} not found`);
 
       if (
-        ['accredited', 'approved'].includes(currentOrder.status) &&
-        'delivered' === input.status ||(currentOrder.status === 'pending' && input.status === 'canceled')
+        (['accredited', 'approved'].includes(currentOrder.status) &&
+          'delivered' === input.status) ||
+        (currentOrder.status === 'pending' && input.status === 'canceled')
       ) {
         const updatedOrder = await ctx.prisma.order.update({
           where: { id: input.id },
@@ -213,7 +218,8 @@ export const ordersRouter = createTRPCRouter({
           `Order status can only be updated to "delivered" if the current status is "accredited" or "approved"`,
         );
       } else if (
-        currentOrder.status === 'pending' && input.status !== 'canceled'
+        currentOrder.status === 'pending' &&
+        input.status !== 'canceled'
       ) {
         throw new Error(
           `Order status can only be updated to "canceled" if the current status is "pending"`,
@@ -340,10 +346,7 @@ export const ordersRouter = createTRPCRouter({
         // Extract the external_reference and status from the paymentInfo
         const { external_reference, status, status_detail } = paymentInfo;
 
-        const orderStatus = mapPaymentStatusToOrderStatus(
-          status,
-          status_detail,
-        );
+        let orderStatus = mapPaymentStatusToOrderStatus(status, status_detail);
 
         // Fetch the order using the external_reference
         const order = await ctx.prisma.order.findUnique({
@@ -356,6 +359,35 @@ export const ordersRouter = createTRPCRouter({
           throw new Error(
             `Order with external_reference ${external_reference} not found`,
           );
+        }
+
+        const pdv = await ctx.prisma.pDV.findUnique({
+          where: { id: order.pdvId },
+        });
+
+        if (!pdv) {
+          throw new Error(`PDV with ID ${order.pdvId} not found`);
+        }
+
+        if (
+          pdv.type === 'automated' &&
+          (orderStatus === 'accredited' || orderStatus === 'approved')
+        ) {
+          const wsResponse = await axios.post(
+            `${env.WEB_SOCKET_URL}/post`,
+            { message: 'Payment received', id: pdv.id },
+            {
+              headers: {
+                'http-access-key': env.HTTP_ACCESS_KEY,
+                // Add your access token here
+                Authorization: `Bearer ${env.ACCESS_TOKEN}`,
+              },
+            },
+          );
+          const wsData = wsResponse.data as wsInfo;
+          if (wsData.status === 'Message sent') {
+            orderStatus = 'delivered';
+          }
         }
 
         // Update the order with the payment_id and status

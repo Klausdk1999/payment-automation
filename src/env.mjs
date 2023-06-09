@@ -7,6 +7,8 @@ import { z } from "zod";
  */
 const server = z.object({
   DATABASE_URL: z.string().url(),
+  WEB_SOCKET_URL: z.string().url(),
+  HTTP_ACCESS_KEY: z.string().min(1),
   NODE_ENV: z.enum(["development", "test", "production"]),
   ACCESS_TOKEN: z.string().min(1),
   TEST_ACCESS_TOKEN: z.string().min(1),
@@ -32,6 +34,8 @@ const client = z.object({
 const processEnv = {
   DATABASE_URL: process.env.DATABASE_URL,
   NODE_ENV: process.env.NODE_ENV,
+  HTTP_ACCESS_KEY: process.env.HTTP_ACCESS_KEY,
+  WEB_SOCKET_URL: process.env.WEB_SOCKET_URL,
   ACCESS_TOKEN: process.env.ACCESS_TOKEN,
   TEST_ACCESS_TOKEN: process.env.TEST_ACCESS_TOKEN,
   JWT_SECRET_KEY: process.env.JWT_SECRET_KEY,
