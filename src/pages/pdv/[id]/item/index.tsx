@@ -170,7 +170,7 @@ const PDVItems: NextPage = () => {
           }}
         >
           <Box>
-            <ContentHeader title="Items" handleAdd={handleAddItem} />
+            <ContentHeader title="Itens" handleAdd={handleAddItem} />
             <TextField
               label="Pesquisar"
               name="find"
@@ -198,7 +198,7 @@ const PDVItems: NextPage = () => {
               mt: 2,
             }}
           >
-            <Table size="small" aria-label="lista de items">
+            <Table size="small" aria-label="lista de itess">
               <TableHead>
                 <TableRow>
                   <TableCell align="center">Editar</TableCell>
