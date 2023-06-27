@@ -10,6 +10,7 @@
 const config = {
   reactStrictMode: true,
   output: 'standalone',
+  target: 'serverless',
   staticPageGenerationTimeout: 60 * 5000, // 1 minute
   /**
    * If you have the "experimental: { appDir: true }" setting enabled, then you
