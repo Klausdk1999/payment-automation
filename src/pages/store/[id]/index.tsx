@@ -8,12 +8,7 @@ import { useRouter } from 'next/router';
 import React from 'react';
 import ItemCard from '../../../components/ItemCard';
 import OrderSummaryCard from '../../../components/OrderSummary';
-import {
-  Box,
-  Typography,
-  Grid,
-  CircularProgress,
-} from '@mui/material';
+import { Box, Typography, Grid, CircularProgress } from '@mui/material';
 import PaymentDialog from '../../../components/PaymentDialog';
 
 interface IPDV {
@@ -38,6 +33,7 @@ interface IItemsOnPDV {
 const Store: NextPage = () => {
   const router = useRouter();
   const { id } = router.query;
+  const [order, setOrder] = useState<any>({});
   const [selectedItems, setSelectedItems] = useState<{
     [itemId: string]: { item: IItem; quantity: number };
   }>({});
@@ -92,12 +88,12 @@ const Store: NextPage = () => {
         0,
       );
 
-      const order = await createOrderMutation.mutateAsync({
+      const updatedOrder = await createOrderMutation.mutateAsync({
         pdvId: id as string,
         items: itemsArray,
         price: totalPrice,
       });
-
+      setOrder(updatedOrder);
       setDialogOpen(true);
 
       toast.success('Compra finalizada com sucesso!', {
@@ -107,7 +103,8 @@ const Store: NextPage = () => {
       });
 
       setTimeout(() => {
-        order.payment_link && window.open(order.payment_link, '_blank');
+        updatedOrder.payment_link &&
+          window.open(updatedOrder.payment_link, '_blank');
         setDialogOpen(false);
       }, 4000);
 
@@ -126,7 +123,10 @@ const Store: NextPage = () => {
     <Box sx={{ padding: 2, marginTop: -12 }}>
       <PaymentDialog
         open={dialogOpen}
-        text="Você será redirecionado para a página de pagamento"
+        text={`Você será redirecionado para a página de pagamento. Link ${
+          // eslint-disable-next-line @typescript-eslint/restrict-template-expressions, @typescript-eslint/no-unsafe-member-access
+          order.payment_link || ''
+        }`}
       />
       <Typography variant="h4" gutterBottom>
         {pdv?.company}
