@@ -4,6 +4,7 @@ import { useState } from 'react';
 import type { NextPage } from 'next';
 import { api } from '../../../utils/api';
 import { toast } from 'react-toastify';
+import Link from 'next/link';
 import { useRouter } from 'next/router';
 import React from 'react';
 import ItemCard from '../../../components/ItemCard';
@@ -123,10 +124,9 @@ const Store: NextPage = () => {
     <Box sx={{ padding: 2, marginTop: -12 }}>
       <PaymentDialog
         open={dialogOpen}
-        text={`Você será redirecionado para a página de pagamento. Link ${
-          // eslint-disable-next-line @typescript-eslint/restrict-template-expressions, @typescript-eslint/no-unsafe-member-access
-          order.payment_link || ''
-        }`}
+        text={`Você será redirecionado para a página de pagamento. Se não for redirecionado, clique aqui: `}
+        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions, @typescript-eslint/no-unsafe-member-access
+        link={order.payment_link || ''}
       />
       <Typography variant="h4" gutterBottom>
         {pdv?.company}
