@@ -127,6 +127,7 @@ const Store: NextPage = () => {
       <PaymentDialog
         open={dialogOpen}
         text="Você será redirecionado para a página de pagamento"
+        link=''
       />
       <Typography variant="h4" gutterBottom>
         {pdv?.company}
