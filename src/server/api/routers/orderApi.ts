@@ -348,13 +348,20 @@ export const ordersRouter = createTRPCRouter({
 
         let orderStatus = mapPaymentStatusToOrderStatus(status, status_detail);
 
-        // Fetch the order using the external_reference
+        // Fetch the order and items on order using the external_reference
         const order = await ctx.prisma.order.findUnique({
           where: {
             id: external_reference.split(' ')[2], // Assuming the external_reference is in the format "Order ID: orderId"
           },
+          include: {
+            items: {
+              include: {
+                item: true,
+              },
+            },
+          },
         });
-
+        console.log(order);
         if (!order) {
           throw new Error(
             `Order with external_reference ${external_reference} not found`,
@@ -373,9 +380,13 @@ export const ordersRouter = createTRPCRouter({
           pdv.type === 'automated' &&
           (orderStatus === 'accredited' || orderStatus === 'approved')
         ) {
+          if (!order.items[0]?.itemId) {
+            throw new Error(`Itens do pedido ${order.id} não encontrados`);
+          }
+          console.log(`ws: ${order.items[0]?.itemId}`);
           const wsResponse = await axios.post(
             `${env.WEB_SOCKET_URL}/post`,
-            { message: `one`, id: pdv.id },
+            { message: `${order.items[0]?.itemId}`, id: pdv.id },
             {
               headers: {
                 'http-access-key': env.HTTP_ACCESS_KEY,
