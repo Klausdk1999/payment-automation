@@ -20,7 +20,6 @@ const PaymentDialog: React.FC<PaymentDialogProps> = ({ open, text, link }) => {
       <DialogTitle id="alert-dialog-title">{'Atenção'}</DialogTitle>
       <Box p={2}>
         {' '}
-        {/* Add padding here */}
         <DialogTitle id="alert-dialog-description">
           {text}
           <a href={link} target="_blank" rel="noopener noreferrer">

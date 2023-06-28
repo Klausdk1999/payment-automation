@@ -4,7 +4,6 @@ import { useState } from 'react';
 import type { NextPage } from 'next';
 import { api } from '../../../utils/api';
 import { toast } from 'react-toastify';
-import Link from 'next/link';
 import { useRouter } from 'next/router';
 import React from 'react';
 import ItemCard from '../../../components/ItemCard';
@@ -107,7 +106,7 @@ const Store: NextPage = () => {
         updatedOrder.payment_link &&
           window.open(updatedOrder.payment_link, '_blank');
         setDialogOpen(false);
-      }, 4000);
+      }, 8000);
 
       // Reset selectedItems after successful order
       setSelectedItems({});

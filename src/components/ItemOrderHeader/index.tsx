@@ -59,7 +59,7 @@ export const ItemOrderHeader: React.FC<ItemOrderHeaderProps> = ({ id }) => {
       void router.push(`/pdv/${id}/item`);
     }
     if (page === 'Loja') {
-      void router.push(`/pdv/${id}`);
+      void router.push(`/store/${id}`);
     }
   };
   
