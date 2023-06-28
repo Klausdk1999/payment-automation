@@ -34,9 +34,9 @@ const ItemCard: React.FC<ItemCardProps> = ({
           onChange={e => onQuantityChange(parseInt(e.target.value))}
         />
       </div>
-      <Button variant="contained" style={{ marginTop: 16 }}>
+      {/* <Button variant="contained" style={{ marginTop: 16 }}>
         Adicionar ao pedido
-      </Button>
+      </Button> */}
     </Paper>
   );
 };
