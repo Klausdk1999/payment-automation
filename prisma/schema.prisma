@@ -65,7 +65,7 @@ model ItemsOnOrder {
     pricePerItem Float
     itemId    String
     item      Items @relation(fields: [itemId], references: [id])
-    orderId   String @unique
+    orderId   String
     order     Order @relation(fields: [orderId], references: [id])
     assignedAt DateTime @default(now())
     @@id ([orderId, itemId])

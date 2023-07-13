@@ -11,6 +11,7 @@ import Box from '@mui/material/Box';
 import { ItemOrderHeader } from '../../../../components/ItemOrderHeader';
 import { CheckBox, Cancel } from '@mui/icons-material';
 import Link from 'next/link';
+import type { Items, ItemsOnOrder } from '@prisma/client';
 import {
   TableContainer,
   Paper,
@@ -179,6 +180,7 @@ const PDVOrders: NextPage = () => {
                   <TableRow>
                     <TableCell align="center">Cancelar</TableCell>
                     <TableCell align="left">Preço total</TableCell>
+                    <TableCell align="left">Items</TableCell>
                     <TableCell align="left">ID</TableCell>
                     <TableCell align="left">Status</TableCell>
                     <TableCell align="left">Link de pagamento</TableCell>
@@ -219,7 +221,29 @@ const PDVOrders: NextPage = () => {
                           component="th"
                           scope="row"
                           sx={{
-                            width: '50%',
+                            width: '25%',
+                          }}
+                        >
+                          {orderOnPDV.items.map(
+                            (
+                              item: {
+                                item: Items;
+                                quantity: number;
+                              },
+                              index: number,
+                            ) => (
+                              <div key={index}>
+                                <strong>Item:</strong> {item.item.name} <br />
+                                <strong>Quantidade:</strong> {item.quantity}
+                              </div>
+                            ),
+                          )}
+                        </TableCell>
+                        <TableCell
+                          component="th"
+                          scope="row"
+                          sx={{
+                            width: '30%',
                           }}
                         >
                           {orderOnPDV.id}
@@ -228,7 +252,7 @@ const PDVOrders: NextPage = () => {
                           component="th"
                           scope="row"
                           sx={{
-                            width: '50%',
+                            width: '30%',
                           }}
                         >
                           {orderOnPDV.status}

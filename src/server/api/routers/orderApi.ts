@@ -248,6 +248,7 @@ export const ordersRouter = createTRPCRouter({
     .query(({ ctx, input }) => {
       return ctx.prisma.order.findMany({
         where: { pdvId: input.pdvId },
+        include: { items: { include: { item: true } } },
       });
     }),
   createPaymentLink: publicProcedure
@@ -384,13 +385,26 @@ export const ordersRouter = createTRPCRouter({
             throw new Error(`Itens do pedido ${order.id} não encontrados`);
           }
           console.log(`ws: ${order.items[0]?.itemId}`);
+          const messages = order.items
+            .map(item => `${item.itemId} -- ${item.quantity}`)
+            .join(', ');
+          // const wsResponse = await axios.post(
+          //   `${env.WEB_SOCKET_URL}/post`,
+          //   // { message: `${order.items[0]?.itemId} -- ${order.items[0].quantity}`, id: pdv.id },
+          //   {
+          //     headers: {
+          //       'http-access-key': env.HTTP_ACCESS_KEY,
+          //       // Add your access token here
+          //       Authorization: `Bearer ${env.ACCESS_TOKEN}`,
+          //     },
+          //   },
+          // );
           const wsResponse = await axios.post(
             `${env.WEB_SOCKET_URL}/post`,
-            { message: `${order.items[0]?.itemId}`, id: pdv.id },
+            { message: messages, id: pdv.id },
             {
               headers: {
                 'http-access-key': env.HTTP_ACCESS_KEY,
-                // Add your access token here
                 Authorization: `Bearer ${env.ACCESS_TOKEN}`,
               },
             },
