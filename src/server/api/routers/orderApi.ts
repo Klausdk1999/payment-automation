@@ -249,6 +249,7 @@ export const ordersRouter = createTRPCRouter({
       return ctx.prisma.order.findMany({
         where: { pdvId: input.pdvId },
         include: { items: { include: { item: true } } },
+        orderBy: { updatedAt: 'desc' },
       });
     }),
   createPaymentLink: publicProcedure
